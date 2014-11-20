@@ -11,6 +11,7 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.tapio.googlemaps.GoogleMap;
 import com.vaadin.tapio.googlemaps.client.LatLon;
+import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapMarker;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Label;
@@ -22,6 +23,10 @@ import com.vaadin.ui.VerticalLayout;
 public class MyVaadinUI extends UI
 {
 
+	private GoogleMapMarker kakolaMarker = new GoogleMapMarker(
+            "DRAGGABLE: Kakolan vankila", new LatLon(60.44291, 22.242415),
+            true, null);
+	
     @WebServlet(value = "/*", asyncSupported = true)
     @VaadinServletConfiguration(productionMode = false, ui = MyVaadinUI.class, widgetset = "com.test.vaadintest.AppWidgetSet")
     public static class Servlet extends VaadinServlet {
@@ -40,6 +45,11 @@ public class MyVaadinUI extends UI
         layout.addComponent(googleMap);
         layout.setExpandRatio(googleMap, 1.0f);
         
+        kakolaMarker.setAnimationEnabled(false);
+        googleMap.addMarker(kakolaMarker);
+        googleMap.addMarker("DRAGGABLE: Paavo Nurmi Stadion", new LatLon(
+                60.442423, 22.26044), true, "VAADIN/1377279006_stadium.png");
+       
         Connection c = null;
         try {
           Class.forName("org.sqlite.JDBC");
