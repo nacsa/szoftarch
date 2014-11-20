@@ -22,10 +22,9 @@ import com.vaadin.ui.VerticalLayout;
 @SuppressWarnings("serial")
 public class MyVaadinUI extends UI
 {
-
-	private GoogleMapMarker kakolaMarker = new GoogleMapMarker(
-            "DRAGGABLE: Kakolan vankila", new LatLon(60.44291, 22.242415),
-            true, null);
+	
+	private Database db;
+	private Map map;
 	
     @WebServlet(value = "/*", asyncSupported = true)
     @VaadinServletConfiguration(productionMode = false, ui = MyVaadinUI.class, widgetset = "com.test.vaadintest.AppWidgetSet")
@@ -38,32 +37,22 @@ public class MyVaadinUI extends UI
         layout.setMargin(true);
         setContent(layout);
 
-        GoogleMap googleMap = new GoogleMap(null, null, null);
-        googleMap.setCenter(new LatLon(60.440963, 22.25122));
-        googleMap.setZoom(10);
-        googleMap.setSizeFull();
-        layout.addComponent(googleMap);
-        layout.setExpandRatio(googleMap, 1.0f);
+        db = new Database();
+        map = new Map();
         
-        kakolaMarker.setAnimationEnabled(false);
-        googleMap.addMarker(kakolaMarker);
-        googleMap.addMarker("DRAGGABLE: Paavo Nurmi Stadion", new LatLon(
-                60.442423, 22.26044), true, "VAADIN/1377279006_stadium.png");
-       
-        Connection c = null;
-        try {
-          Class.forName("org.sqlite.JDBC");
-          c = DriverManager.getConnection("jdbc:sqlite:test.db");
-        } catch ( Exception e ) {
-          System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-          System.exit(0);
+        for (int i=0; i<5; i++){
+        	ParkingPlace p = new ParkingPlace("balas", 23.4f, 14.2424f, "Budapest, 1117 Iriniyi J. 42.");
+        	db.addParkingPlace(p);
         }
-        System.out.println("Opened database successfully");
+        
+        layout.addComponent(map.googleMap);
+        layout.setExpandRatio(map.googleMap, 1.0f);
         
         Button button = new Button("Click Me");
         button.addClickListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
                 layout.addComponent(new Label("Thank you for clicking"));
+                db.addUser("Balazs", "asdasd");
             }
         });
         layout.addComponent(button);
