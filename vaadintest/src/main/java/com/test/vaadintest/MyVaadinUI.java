@@ -1,5 +1,8 @@
 package com.test.vaadintest;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+
 import javax.servlet.annotation.WebServlet;
 
 import com.vaadin.annotations.Theme;
@@ -36,6 +39,16 @@ public class MyVaadinUI extends UI
         googleMap.setSizeFull();
         layout.addComponent(googleMap);
         layout.setExpandRatio(googleMap, 1.0f);
+        
+        Connection c = null;
+        try {
+          Class.forName("org.sqlite.JDBC");
+          c = DriverManager.getConnection("jdbc:sqlite:test.db");
+        } catch ( Exception e ) {
+          System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+          System.exit(0);
+        }
+        System.out.println("Opened database successfully");
         
         Button button = new Button("Click Me");
         button.addClickListener(new Button.ClickListener() {
