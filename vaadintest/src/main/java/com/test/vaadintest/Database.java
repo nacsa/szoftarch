@@ -1,5 +1,8 @@
 package com.test.vaadintest;
 
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 
 public class Database {
@@ -21,14 +24,29 @@ public class Database {
           
           String parking = "CREATE TABLE IF NOT EXISTS parking("
           		+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-          		+ "user CHAR(20),"
+          		+ "username CHAR(20) NOT NULL,"
           		+ "lat REAL,"
           		+ "lon REAL,"
-          		+ "address TEXT"
-          		+ ");";
+          		+ "address TEXT,"
+          		+ "price REAL,"
+          		+ "availability TEXT,"
+          		+ "FOREIGN KEY(username) REFERENCES users(username)"
+          		+ ")";
           
+          String parkrating = "CREATE TABLE IF NOT EXISTS parkrating("
+          		+ "id INTEGER NOT NULL,"
+          		+ "username CHAR(20) NOT NULL,"
+          		+ "picture BLOB,"
+          		+ "rating INT CHECK( rating >=0 AND rating <= 5 ),"
+          		+ "comment TEXT,"
+          		+ "PRIMARY KEY (id, user),"
+          		+ "FOREIGN KEY(id) REFERENCES parking(id),"
+          		+ "FOREIGN KEY(username) REFERENCES users(username)"
+          		+ ")";
+         
           stmt.executeUpdate(users);
           stmt.executeUpdate(parking);
+          //stmt.executeUpdate(parkrating);
           stmt.close();
           conn.commit();
         } catch ( Exception e ) {
@@ -36,6 +54,19 @@ public class Database {
           System.exit(0);
         }
         System.out.println("Opened database successfully");
+	}
+	
+	public String encryptPass(String password){
+		try {
+			MessageDigest cript = MessageDigest.getInstance("SHA-1");
+			cript.reset();
+			cript.update(password.getBytes("utf8"));
+			return  new String(cript.digest(), "utf8");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	/**
@@ -48,6 +79,7 @@ public class Database {
 		String adduser = "INSERT INTO users (username, password)"
 				+ "VALUES (?, ?)";
 		try {
+			password = encryptPass(password);
 			PreparedStatement stmt = conn.prepareStatement(adduser);
 			stmt.setString(1, username);
 			stmt.setString(2, password);
@@ -65,9 +97,8 @@ public class Database {
 	}
 	
 	public boolean addParkingPlace(ParkingPlace pp){
-		if (pp.user == "" || pp.user == null) pp.user = "Unknown";
-		String addpark = "INSERT INTO parking (user, lat, lon, address)"
-				+ "VALUES (?, ?, ?, ?)";
+		String addpark = "INSERT INTO parking (username, lat, lon, address, price, availability)"
+				+ "VALUES (?, ?, ?, ?, ?, ?)";
 		
 		try {
 			PreparedStatement stmt = conn.prepareStatement(addpark);
@@ -75,6 +106,8 @@ public class Database {
 			stmt.setFloat(2, pp.lat);
 			stmt.setFloat(3, pp.lon);
 			stmt.setString(4, pp.address);
+			stmt.setFloat(5, pp.price);
+			stmt.setString(6, pp.avail);
 			stmt.execute();
 			stmt.close();
 			conn.commit();

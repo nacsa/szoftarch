@@ -6,13 +6,17 @@ public class ParkingPlace {
 	float lat;
 	float lon;
 	String address;
+	float price;
+	String avail;
 	
-	public ParkingPlace(String user, float lat, float lon, String address) {
+	public ParkingPlace(String user, float lat, float lon, String address, float price, String avail) {
 		super();
 		this.user = user;
 		this.lat = lat;
 		this.lon = lon;
 		this.address = address;
+		this.price = price;
+		this.avail = avail;
 	}
 
 }

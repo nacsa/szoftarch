@@ -41,7 +41,7 @@ public class MyVaadinUI extends UI
         map = new Map();
         
         for (int i=0; i<5; i++){
-        	ParkingPlace p = new ParkingPlace("balas", 23.4f, 14.2424f, "Budapest, 1117 Iriniyi J. 42.");
+        	ParkingPlace p = new ParkingPlace("balas", 23.4f, 14.2424f, "Budapest, 1117 Iriniyi J. 42.", 1.2f, "mindig");
         	db.addParkingPlace(p);
         }
         
