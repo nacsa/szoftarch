@@ -39,14 +39,14 @@ public class Database {
           		+ "picture BLOB,"
           		+ "rating INT CHECK( rating >=0 AND rating <= 5 ),"
           		+ "comment TEXT,"
-          		+ "PRIMARY KEY (id, user),"
+          		+ "PRIMARY KEY (id, username),"
           		+ "FOREIGN KEY(id) REFERENCES parking(id),"
           		+ "FOREIGN KEY(username) REFERENCES users(username)"
           		+ ")";
          
           stmt.executeUpdate(users);
           stmt.executeUpdate(parking);
-          //stmt.executeUpdate(parkrating);
+          stmt.executeUpdate(parkrating);
           stmt.close();
           conn.commit();
         } catch ( Exception e ) {
