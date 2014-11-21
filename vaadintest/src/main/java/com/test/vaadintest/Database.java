@@ -1,9 +1,13 @@
 package com.test.vaadintest;
 
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
+
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 
 public class Database {
 
@@ -37,13 +41,13 @@ public class Database {
           		+ "id INTEGER NOT NULL,"
           		+ "username CHAR(20) NOT NULL,"
           		+ "picture BLOB,"
-          		+ "rating INT CHECK( rating >=0 AND rating <= 5 ),"
+          		+ "rating INT CHECK( rating >=1 AND rating <= 5 ),"
           		+ "comment TEXT,"
           		+ "PRIMARY KEY (id, username),"
           		+ "FOREIGN KEY(id) REFERENCES parking(id),"
           		+ "FOREIGN KEY(username) REFERENCES users(username)"
           		+ ")";
-         
+          
           stmt.executeUpdate(users);
           stmt.executeUpdate(parking);
           stmt.executeUpdate(parkrating);
@@ -103,21 +107,59 @@ public class Database {
 		try {
 			PreparedStatement stmt = conn.prepareStatement(addpark);
 			stmt.setString(1, pp.user);
-			stmt.setFloat(2, pp.lat);
-			stmt.setFloat(3, pp.lon);
-			stmt.setString(4, pp.address);
-			stmt.setFloat(5, pp.price);
-			stmt.setString(6, pp.avail);
+			if (pp.lat != 0 && pp.lon != 0){
+				stmt.setFloat(2, pp.lat);
+				stmt.setFloat(3, pp.lon);
+			}
+			if (pp.address != null)
+				stmt.setString(4, pp.address);
+			if (pp.price != 0)
+				stmt.setFloat(5, pp.price);
+			if (pp.avail != null)
+				stmt.setString(6, pp.avail);
 			stmt.execute();
+			
+			if (!pp.imgs.isEmpty() || !pp.ratings.isEmpty() || !pp.comments.isEmpty()){
+				String getmaxid = "SELECT MAX(id) FROM parking";
+				Statement query = conn.createStatement();
+				ResultSet maxid = query.executeQuery(getmaxid);
+				pp.setId(maxid.getInt("id"));
+				addParkRating(pp);
+			}
+			
 			stmt.close();
 			conn.commit();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			e.getMessage();
 		}
 		System.out.println("Parking place added");
 		return true;
+	}
+	
+	//TODO: UNTESTED!!
+	public void addParkRating(ParkingPlace pp) throws Exception{
+		String addrating = "INSERT INTO parkrating(id, username, picture, rating, comment)"
+				+ "VALUES (?, ?, ?, ?, ?)";
+		PreparedStatement stmt = conn.prepareStatement(addrating);
+		
+		stmt.setInt(1, pp.getId());
+		stmt.setString(2, pp.user);
+		if (pp.imgs.firstElement() != null){
+			ImageInputStream img = ImageIO.createImageInputStream(pp.imgs.firstElement());
+			stmt.setBlob(3, (InputStream)img);
+		}
+		if (pp.ratings.firstElement() != null){
+			stmt.setInt(4, pp.ratings.firstElement());
+		}
+		if (pp.comments.firstElement() != null){
+			stmt.setString(5, pp.comments.firstElement());
+		}
 	}
 	
 	/**
