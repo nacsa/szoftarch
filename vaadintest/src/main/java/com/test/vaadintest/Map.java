@@ -19,8 +19,8 @@ public class Map {
         
         kakolaMarker.setAnimationEnabled(false);
         googleMap.addMarker(kakolaMarker);
-        googleMap.addMarker("DRAGGABLE: Paavo Nurmi Stadion", new LatLon(
-                60.442423, 22.26044), true, "VAADIN/1377279006_stadium.png");
+       // googleMap.addMarker("DRAGGABLE: Paavo Nurmi Stadion", new LatLon(
+        //        60.442423, 22.26044), true, "VAADIN/1377279006_stadium.png");
         
 	}
 }
