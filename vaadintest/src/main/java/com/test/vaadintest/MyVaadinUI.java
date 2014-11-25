@@ -67,11 +67,6 @@ public class MyVaadinUI extends UI
         db = new Database();
         map = new Map();
         
-        for (int i=0; i<5; i++){
-        	ParkingPlace p = new ParkingPlace("balas", 23.4f, 14.2424f, "Budapest, 1117 Iriniyi J. 42.", 1.2f, "mindig");
-        	db.addParkingPlace(p);
-        }
-        
         layout.addComponent(map.googleMap);
         layout.setExpandRatio(map.googleMap, 1.0f);
         
@@ -85,6 +80,10 @@ public class MyVaadinUI extends UI
         layout.addComponent(button);
         
         
+    }
+    
+    public Database getDB(){
+    	return db;
     }
     
     public String getLoginedUserName() {

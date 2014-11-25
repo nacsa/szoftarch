@@ -8,6 +8,7 @@ import org.vaadin.teemu.wizards.event.WizardStepActivationEvent;
 import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 
 import com.test.vaadintest.MyVaadinUI;
+import com.test.vaadintest.ParkingPlace;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.tapio.googlemaps.client.LatLon;
 import com.vaadin.ui.Notification;
@@ -72,7 +73,6 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 
 	@Override
 	public void wizardCompleted(WizardCompletedEvent event) {
-		//TODO felvenni adatbázisba az adatokat;
 		String user = ((MyVaadinUI)UI.getCurrent()).getLoginedUserName();
 		float lat = (float)parkingLatLon.getLat();
 		float lon = (float)parkingLatLon.getLon();
@@ -82,6 +82,8 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 		
 		//valami ilyesmi:
 		//db.add(new ParkingPlace(...) paraméterbe a fenti adatok, ID-t meg db-nek kellene generálni
+		((MyVaadinUI)UI.getCurrent()).getDB().addParkingPlace(
+				new ParkingPlace(user, lat, lon, address, price, avail));
 		endWizard("Parking place added! Have a nice day!");
 	}
 

@@ -11,15 +11,13 @@ import javax.imageio.stream.ImageInputStream;
 
 public class Database {
 
-	private Connection conn;
+	private Connection conn = null;
 	/**
 	 * Konstruktor az adatbázis betöltéséhez/létrehozásához.
 	*/
 	public Database(){
 		try {
-          Class.forName("org.sqlite.JDBC");
-          conn = DriverManager.getConnection("jdbc:sqlite:park.db");
-          conn.setAutoCommit(false);
+		  if (conn == null) connectToDb();
           Statement stmt = conn.createStatement();
           
           String users = "CREATE TABLE IF NOT EXISTS users("
@@ -53,24 +51,60 @@ public class Database {
           stmt.executeUpdate(parkrating);
           stmt.close();
           conn.commit();
+          conn.close();
         } catch ( Exception e ) {
           System.err.println( e.getClass().getName() + ": " + e.getMessage() );
           System.exit(0);
         }
+	}
+	
+	private void connectToDb() throws SQLException{
+
+        try {
+			Class.forName("org.sqlite.JDBC");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+        conn = DriverManager.getConnection("jdbc:sqlite:park.db");
+        conn.setAutoCommit(false);
         System.out.println("Opened database successfully");
 	}
 	
-	public String encryptPass(String password){
+	private String encryptPass(String password){
 		try {
 			MessageDigest cript = MessageDigest.getInstance("SHA-1");
 			cript.reset();
 			cript.update(password.getBytes("utf8"));
 			return  new String(cript.digest(), "utf8");
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	public boolean checkUserAndPassword(String name, String password){
+		String hashed = encryptPass(password);
+		try {
+			if (conn.isClosed()) connectToDb();
+			String checkuser = "SELECT username, password FROM users "
+					+ "WHERE username = ? AND password = ?";
+
+			PreparedStatement stmt = conn.prepareStatement(checkuser);
+	        stmt.setString(1, name);
+	        stmt.setString(2, hashed);
+	        ResultSet rec = stmt.executeQuery();
+	        conn.close();
+	        if (rec.next()){
+	        	return true; //ResultSet.isLast() nincs implementálva... szóval nem ellenőrzöm le, 
+	        	//hogy nem adott-e vissza véletlen többet (az adatmodell mondjuk tiltja)
+	        }else return false;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e){
+			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+		}
+		return false;
 	}
 	
 	/**
@@ -84,19 +118,20 @@ public class Database {
 				+ "VALUES (?, ?)";
 		try {
 			password = encryptPass(password);
+			if (conn.isClosed()) connectToDb();
 			PreparedStatement stmt = conn.prepareStatement(adduser);
 			stmt.setString(1, username);
 			stmt.setString(2, password);
 			stmt.execute();
 			stmt.close();
 			conn.commit();
-			
+			conn.close();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
 		System.out.println("User added");
+		
 		return true;
 	}
 	
@@ -105,6 +140,7 @@ public class Database {
 				+ "VALUES (?, ?, ?, ?, ?, ?)";
 		
 		try {
+			if (conn.isClosed()) connectToDb();
 			PreparedStatement stmt = conn.prepareStatement(addpark);
 			stmt.setString(1, pp.user);
 			if (pp.lat != 0 && pp.lon != 0){
@@ -118,23 +154,23 @@ public class Database {
 			if (pp.avail != null)
 				stmt.setString(6, pp.avail);
 			stmt.execute();
+			conn.commit();
 			
 			if (!pp.imgs.isEmpty() || !pp.ratings.isEmpty() || !pp.comments.isEmpty()){
 				String getmaxid = "SELECT MAX(id) FROM parking";
 				Statement query = conn.createStatement();
 				ResultSet maxid = query.executeQuery(getmaxid);
+				conn.close(); //azert hogy lehessen addParkRatinget külön is hívni.
 				pp.setId(maxid.getInt("id"));
 				addParkRating(pp);
 			}
 			
 			stmt.close();
-			conn.commit();
+			if (!conn.isClosed()) conn.close();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			e.getMessage();
 		}
@@ -144,8 +180,9 @@ public class Database {
 	
 	//TODO: UNTESTED!!
 	public void addParkRating(ParkingPlace pp) throws Exception{
-		String addrating = "INSERT INTO parkrating(id, username, picture, rating, comment)"
+		String addrating = "INSERT INTO parkrating (id, username, picture, rating, comment)"
 				+ "VALUES (?, ?, ?, ?, ?)";
+		if (conn.isClosed()) connectToDb();
 		PreparedStatement stmt = conn.prepareStatement(addrating);
 		
 		stmt.setInt(1, pp.getId());
@@ -160,6 +197,9 @@ public class Database {
 		if (pp.comments.firstElement() != null){
 			stmt.setString(5, pp.comments.firstElement());
 		}
+		stmt.execute();
+		conn.commit();
+		conn.close();
 	}
 	
 	/**
