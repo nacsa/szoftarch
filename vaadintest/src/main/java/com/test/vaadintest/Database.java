@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
@@ -12,6 +13,7 @@ import javax.imageio.stream.ImageInputStream;
 public class Database {
 
 	private Connection conn = null;
+	
 	/**
 	 * Konstruktor az adatbázis betöltéséhez/létrehozásához.
 	*/
@@ -31,7 +33,8 @@ public class Database {
           		+ "lon REAL,"
           		+ "address TEXT,"
           		+ "price REAL,"
-          		+ "availability TEXT,"
+          		+ "availfrom TEXT,"
+          		+ "availuntil TEXT,"
           		+ "FOREIGN KEY(username) REFERENCES users(username)"
           		+ ")";
           
@@ -136,8 +139,8 @@ public class Database {
 	}
 	
 	public boolean addParkingPlace(ParkingPlace pp){
-		String addpark = "INSERT INTO parking (username, lat, lon, address, price, availability)"
-				+ "VALUES (?, ?, ?, ?, ?, ?)";
+		String addpark = "INSERT INTO parking (username, lat, lon, address, price, availfrom, availuntil)"
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?)";
 		
 		try {
 			if (conn.isClosed()) connectToDb();
@@ -151,8 +154,10 @@ public class Database {
 				stmt.setString(4, pp.address);
 			if (pp.price != 0)
 				stmt.setFloat(5, pp.price);
-			if (pp.avail != null)
-				stmt.setString(6, pp.avail);
+			if (pp.availfrom != null)
+				stmt.setString(6, pp.availfrom);
+			if (pp.availuntil!= null)
+				stmt.setString(6, pp.availuntil);
 			stmt.execute();
 			conn.commit();
 			
@@ -187,15 +192,15 @@ public class Database {
 		
 		stmt.setInt(1, pp.getId());
 		stmt.setString(2, pp.user);
-		if (pp.imgs.firstElement() != null){
-			ImageInputStream img = ImageIO.createImageInputStream(pp.imgs.firstElement());
+		if (pp.imgs.get(0) != null){
+			ImageInputStream img = ImageIO.createImageInputStream(pp.imgs.get(0));
 			stmt.setBlob(3, (InputStream)img);
 		}
-		if (pp.ratings.firstElement() != null){
-			stmt.setInt(4, pp.ratings.firstElement());
+		if (pp.ratings.get(0) != null){
+			stmt.setInt(4, pp.ratings.get(0));
 		}
-		if (pp.comments.firstElement() != null){
-			stmt.setString(5, pp.comments.firstElement());
+		if (pp.comments.get(0) != null){
+			stmt.setString(5, pp.comments.get(0));
 		}
 		stmt.execute();
 		conn.commit();
@@ -207,7 +212,41 @@ public class Database {
 	 * úgy hogy ne kelljen minden attribútumra külön függévnyt írni?
 	 * @return
 	 */
-	public ParkingPlace queryParkingPlace(){
-		return null;
+	public ArrayList<ParkingPlace> queryParkingPlaceByAddress(String address){
+		String query = "SELECT * FROM parking"
+				+ " WHERE address LIKE ? ";
+		ArrayList<ParkingPlace> ret = new ArrayList<ParkingPlace>();
+		
+		try {
+			if (conn.isClosed()) connectToDb();
+			PreparedStatement stmt = conn.prepareStatement(query);
+			address = new String ("%").concat(address.concat(new String("%")));
+			stmt.setString(1, address);
+			
+			ResultSet res = stmt.executeQuery();
+			while (res.next()){
+				ParkingPlace pp = new ParkingPlace(res.getString("username"), res.getFloat("lat"), 
+						res.getFloat("lon"), res.getString("address"), res.getFloat("price"), res.getString("availfrom"), res.getString("availuntil"));
+				pp.setId(res.getInt("id"));
+				
+				String ratings = "SELECT * FROM parkrating WHERE "
+						+ "id = ? AND username = ? ";
+				PreparedStatement stmt2 = conn.prepareStatement(ratings);
+				stmt2.setInt(1, pp.getId());
+				stmt2.setString(2, pp.user);
+				ResultSet resrating = stmt2.executeQuery();
+				while (resrating.next()){
+					pp.addImgRatingComment(ImageIO.read( resrating.getBlob("picture").getBinaryStream() ), 
+							resrating.getInt("rating"), resrating.getString("comment"));
+				}
+				
+				ret.add(pp);	
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ret;
 	}
 }

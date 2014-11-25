@@ -1,7 +1,7 @@
 package com.test.vaadintest;
 
 import java.awt.image.*;
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class ParkingPlace {
 	
@@ -10,14 +10,15 @@ public class ParkingPlace {
 	float lon;
 	String address;
 	float price;
-	String avail;
+	String availfrom;
+	String availuntil;
 	
 	//azért legyenek vektorok, mert ha listázni akarjuk egy parkolóról az összeset valamelyikből,
 	//akkor azt felvehessük egy ParkingPlace objektumba. De amikor hozzáadunk egy új parkolót és adunk meg képet/ratinget/kommentet, 
 	//akkor mindegyikből csak egyet adhatunk meg. 
-	Vector<BufferedImage> imgs = new Vector<BufferedImage>();
-	Vector<Integer> ratings = new Vector<Integer>();
-	Vector<String> comments = new Vector<String>();
+	ArrayList<BufferedImage> imgs = new ArrayList<BufferedImage>();
+	ArrayList<Integer> ratings = new ArrayList<Integer>();
+	ArrayList<String> comments = new ArrayList<String>();
 	private int id;
 	
 	//a tagváltozók elérhetők, a létrehozás után be lehet állítani (http://en.wikipedia.org/wiki/Builder_pattern, csak nincs külön builder :D)
@@ -27,19 +28,21 @@ public class ParkingPlace {
 		this.lon = 0;
 		this.address = null;
 		this.price = 0;
-		this.avail = null;
+		this.availfrom = null;
+		this.availuntil = null;
 		this.id = 0;
 	}
 	
 	//TODO: több konstruktor, hogy ne kelljen minden paramétert megadni. Pl.: ha csak a cím van meg, a GoogleMapstól lekérhetné a GPS-t
-	public ParkingPlace(String user, float lat, float lon, String address, float price, String avail) {
+	public ParkingPlace(String user, float lat, float lon, String address, float price, String availfrom, String availuntil) {
 		super();
 		this.user = user;
 		this.lat = lat;
 		this.lon = lon;
 		this.address = address;
 		this.price = price;
-		this.avail = avail;
+		this.availfrom = availfrom;
+		this.availuntil = availuntil;
 		this.id = 0;
 	}
 	

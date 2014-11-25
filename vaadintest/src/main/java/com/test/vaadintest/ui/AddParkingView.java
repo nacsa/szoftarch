@@ -78,12 +78,14 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 		float lon = (float)parkingLatLon.getLon();
 		String address = addressField.getValue();
 		float price = Float.parseFloat(priceField.getValue());
-		String avail = intervallumField.getValue();
+		String availfrom = intervallumField.getValue();
+		//TODO: KELL MÉG EGY INTERVALLUM
+		String availuntil = intervallumField.getValue();
 		
 		//valami ilyesmi:
 		//db.add(new ParkingPlace(...) paraméterbe a fenti adatok, ID-t meg db-nek kellene generálni
 		((MyVaadinUI)UI.getCurrent()).getDB().addParkingPlace(
-				new ParkingPlace(user, lat, lon, address, price, avail));
+				new ParkingPlace(user, lat, lon, address, price, availfrom, availuntil));
 		endWizard("Parking place added! Have a nice day!");
 	}
 
