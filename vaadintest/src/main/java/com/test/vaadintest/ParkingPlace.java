@@ -19,9 +19,11 @@ public class ParkingPlace {
 	ArrayList<BufferedImage> imgs = new ArrayList<BufferedImage>();
 	ArrayList<Integer> ratings = new ArrayList<Integer>();
 	ArrayList<String> comments = new ArrayList<String>();
+	ArrayList<String> ratingusers = new ArrayList<String>();
 	private int id;
 	
 	//a tagváltozók elérhetők, a létrehozás után be lehet állítani (http://en.wikipedia.org/wiki/Builder_pattern, csak nincs külön builder :D)
+	// használható, mert a username-en kívül a többi menző lehet null.
 	public ParkingPlace(String user){
 		this.user = user;
 		this.lat = 0;
@@ -62,9 +64,10 @@ public class ParkingPlace {
 	 * @param rating
 	 * @param comment
 	 */
-	public void addImgRatingComment(BufferedImage img, Integer rating, String comment){
+	public void addImgRatingComment(BufferedImage img, Integer rating, String comment, String user){
 		imgs.add(img);
 		ratings.add(rating);
 		comments.add(comment);
+		ratingusers.add(user);
 	}
 }

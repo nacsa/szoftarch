@@ -1,5 +1,6 @@
 package com.test.vaadintest;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -207,10 +208,31 @@ public class Database {
 		conn.close();
 	}
 	
+	private ParkingPlace gatherImgRatingCommentById(ResultSet res) throws SQLException, IOException, Exception{
+		ParkingPlace pp = null;
+		while (res.next()){
+			pp = new ParkingPlace(res.getString("username"), res.getFloat("lat"), 
+					res.getFloat("lon"), res.getString("address"), res.getFloat("price"), res.getString("availfrom"), res.getString("availuntil"));
+			pp.setId(res.getInt("id"));
+			
+			String ratings = "SELECT * FROM parkrating WHERE "
+					+ "id = ? ";
+			PreparedStatement stmt2 = conn.prepareStatement(ratings);
+			stmt2.setInt(1, pp.getId());
+			stmt2.setString(2, pp.user);
+			ResultSet resrating = stmt2.executeQuery();
+			
+			while (resrating.next()){
+				pp.addImgRatingComment(ImageIO.read( resrating.getBlob("picture").getBinaryStream() ), 
+						resrating.getInt("rating"), resrating.getString("comment"), resrating.getString("username"));
+			}
+		}
+		return pp;
+	}
+	
 	/**
-	 * TODO: hogyan defináljunk patternt 
-	 * úgy hogy ne kelljen minden attribútumra külön függévnyt írni?
-	 * @return
+	 * @return Visszaadja az összes Parkolóhelyet, amely címében benne van az "address" string.
+	 * Feltöli a parkolóhelyről mondott összes véleményt, képet, értékelést is.
 	 */
 	public ArrayList<ParkingPlace> queryParkingPlaceByAddress(String address){
 		String query = "SELECT * FROM parking"
@@ -224,24 +246,67 @@ public class Database {
 			stmt.setString(1, address);
 			
 			ResultSet res = stmt.executeQuery();
-			while (res.next()){
-				ParkingPlace pp = new ParkingPlace(res.getString("username"), res.getFloat("lat"), 
-						res.getFloat("lon"), res.getString("address"), res.getFloat("price"), res.getString("availfrom"), res.getString("availuntil"));
-				pp.setId(res.getInt("id"));
-				
-				String ratings = "SELECT * FROM parkrating WHERE "
-						+ "id = ? AND username = ? ";
-				PreparedStatement stmt2 = conn.prepareStatement(ratings);
-				stmt2.setInt(1, pp.getId());
-				stmt2.setString(2, pp.user);
-				ResultSet resrating = stmt2.executeQuery();
-				while (resrating.next()){
-					pp.addImgRatingComment(ImageIO.read( resrating.getBlob("picture").getBinaryStream() ), 
-							resrating.getInt("rating"), resrating.getString("comment"));
-				}
-				
-				ret.add(pp);	
-			}
+			ret.add(gatherImgRatingCommentById(res));	
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ret;
+	}
+	
+	/**
+	 * Lekéri azokat a parkolóhelyeket, melyeknek az ára nem haladja meg a "maxprice" paramétert
+	 * @param maxprice
+	 * @return
+	 */
+	public ArrayList<ParkingPlace> queryParkingPlaceByPrice(float maxprice){
+		String query = "SELECT * FROM parking "
+				+ "WHERE price <= ? ";
+		
+		ArrayList<ParkingPlace> ret = new ArrayList<ParkingPlace>();
+		
+		try {
+			if (conn.isClosed()) connectToDb();
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setFloat(1, maxprice);
+			
+			ResultSet res = stmt.executeQuery();
+			ret.add(gatherImgRatingCommentById(res));	
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ret;
+	}
+	
+	/**
+	 * Visszatér azokkal a parkolóhelyekkel, amelyeknek rendelkezésre állása tartalmazza a megadott intervallumot.
+	 * Ha az egyik érték hiányzik a DBben, akkor azt mindenre teljesülőnek tekinti.
+	 * @param from
+	 * @param until
+	 * @return
+	 */
+	public ArrayList<ParkingPlace> queryParkingPlaceByTime(String from, String until){
+		String query = "SELECT * FROM parking "
+				+ "WHERE "
+				+ "(time(availfrom) <= time( ? ) OR availfrom IS NULL) AND "
+				+ "(time(availuntil) >= time ( ? ) OR availuntil IS NULL)";
+		
+		ArrayList<ParkingPlace> ret = new ArrayList<ParkingPlace>();
+		
+		try {
+			if (conn.isClosed()) connectToDb();
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setString(1, from);
+			stmt.setString(2, until);
+			
+			ResultSet res = stmt.executeQuery();
+			ret.add(gatherImgRatingCommentById(res));	
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
