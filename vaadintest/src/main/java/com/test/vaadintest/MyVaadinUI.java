@@ -5,6 +5,9 @@ import java.sql.DriverManager;
 
 import javax.servlet.annotation.WebServlet;
 
+import com.test.vaadintest.ui.AddParkingView;
+import com.test.vaadintest.ui.HomeView;
+import com.test.vaadintest.ui.LoginView;
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
