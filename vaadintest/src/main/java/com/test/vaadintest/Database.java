@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 
+import com.vaadin.tapio.googlemaps.client.LatLon;
+
 public class Database {
 
 	private Connection conn = null;
@@ -186,7 +188,7 @@ public class Database {
 			if (pp.availfrom != null)
 				stmt.setString(6, pp.availfrom);
 			if (pp.availuntil!= null)
-				stmt.setString(6, pp.availuntil);
+				stmt.setString(7, pp.availuntil);
 			stmt.execute();
 			conn.commit();
 			
@@ -236,10 +238,18 @@ public class Database {
 		conn.close();
 	}
 	
-	private ParkingPlace gatherImgRatingCommentById(ResultSet res) throws SQLException, IOException, Exception{
-		ParkingPlace pp = null;
+	/**
+	 * Összegyűjti az összes parkolóhelyhez megadott képet, kommentet és véleményt.
+	 * @param res
+	 * @return
+	 * @throws SQLException
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	private ArrayList<ParkingPlace> gatherImgRatingCommentById(ResultSet res) throws SQLException, IOException, Exception{
+		ArrayList<ParkingPlace> ret = new ArrayList<ParkingPlace>();
 		while (res.next()){
-			pp = new ParkingPlace(res.getString("username"), res.getFloat("lat"), 
+			ParkingPlace pp = new ParkingPlace(res.getString("username"), res.getFloat("lat"), 
 					res.getFloat("lon"), res.getString("address"), res.getFloat("price"), res.getString("availfrom"), res.getString("availuntil"));
 			pp.setId(res.getInt("id"));
 			
@@ -255,7 +265,7 @@ public class Database {
 						resrating.getInt("rating"), resrating.getString("comment"), resrating.getString("username"));
 			}
 		}
-		return pp;
+		return ret;
 	}
 	
 	/**
@@ -265,7 +275,7 @@ public class Database {
 	public ArrayList<ParkingPlace> queryParkingPlaceByAddress(String address){
 		String query = "SELECT * FROM parking"
 				+ " WHERE address LIKE ? ";
-		ArrayList<ParkingPlace> ret = new ArrayList<ParkingPlace>();
+		ArrayList<ParkingPlace> ret = null;
 		
 		try {
 			if (conn.isClosed()) connectToDb();
@@ -274,7 +284,7 @@ public class Database {
 			stmt.setString(1, address);
 			
 			ResultSet res = stmt.executeQuery();
-			ret.add(gatherImgRatingCommentById(res));
+			ret = (gatherImgRatingCommentById(res));
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -293,7 +303,7 @@ public class Database {
 		String query = "SELECT * FROM parking "
 				+ "WHERE price <= ? ";
 		
-		ArrayList<ParkingPlace> ret = new ArrayList<ParkingPlace>();
+		ArrayList<ParkingPlace> ret = null;
 		
 		try {
 			if (conn.isClosed()) connectToDb();
@@ -301,7 +311,7 @@ public class Database {
 			stmt.setFloat(1, maxprice);
 			
 			ResultSet res = stmt.executeQuery();
-			ret.add(gatherImgRatingCommentById(res));	
+			ret = (gatherImgRatingCommentById(res));
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -324,7 +334,7 @@ public class Database {
 				+ "(time(availfrom) <= time( ? ) OR availfrom IS NULL) AND "
 				+ "(time(availuntil) >= time ( ? ) OR availuntil IS NULL)";
 		
-		ArrayList<ParkingPlace> ret = new ArrayList<ParkingPlace>();
+		ArrayList<ParkingPlace> ret = null;
 		
 		try {
 			if (conn.isClosed()) connectToDb();
@@ -333,7 +343,7 @@ public class Database {
 			stmt.setString(2, until);
 			
 			ResultSet res = stmt.executeQuery();
-			ret.add(gatherImgRatingCommentById(res));	
+			ret = (gatherImgRatingCommentById(res));	
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -341,5 +351,73 @@ public class Database {
 			e.printStackTrace();
 		}
 		return ret;
+	}
+	
+	/**
+	 * Összetett lekérédst hajt végre az adatbázison.
+	 * @param around Milyen földrajzi koordináta körül keressünk.
+	 * @param distanceInGeoSecs Az adott földrajzi szélesség körül fördrajzi másodpercben mérve mekkora távolságra szűrjünk.
+	 * @param maxprice 0 ha nem érdekes
+	 * @param from
+	 * @param until
+	 * @return
+	 */
+	public ArrayList<ParkingPlace> queryParkingPlace(LatLon around, float distanceInGeoSecs, float maxprice, String from, String until){
+		String baseQuery = "SELECT * FROM parking WHERE id IS NOT NULL "; //id IS NOT NULL csak azért, hogy bármilyen kombinációban lehessen AND
+		String timeConstraint1 = " AND (time(availfrom) <= time( ? ) OR availfrom IS NULL) ";
+		String timeConstraint2 = " AND (time(availuntil) >= time ( ? ) OR availuntil IS NULL) ";
+		String priceConstraint = " AND price <= ? ";
+		String distanceConstraint = " AND ABS ( lat - ? ) <= ? AND ABS( lon - ? ) <= ? ";
+		if (around != null){
+			baseQuery += distanceConstraint;
+		}
+		if (maxprice > 0) {
+			baseQuery += priceConstraint;
+		}
+		if (from != null){
+			baseQuery += timeConstraint1;
+		}
+		if (until != null) {
+			baseQuery += timeConstraint2;
+		}
+		//ha lenne function pointer, akkor ez szebben nézne ki. 
+		try {
+			if (conn.isClosed()) connectToDb();
+			PreparedStatement stmt = conn.prepareStatement(baseQuery);
+			int stmtParamCount = 1;
+			if (around != null){
+				stmt.setFloat(1, (float) (around.getLat()));
+				stmt.setFloat(2, (float) 90);
+				stmt.setFloat(3, (float) (around.getLon()));
+				stmt.setFloat(4, (float) 180);
+				stmtParamCount += 4;
+			}
+			if (maxprice > 0) {
+				stmt.setFloat(stmtParamCount, maxprice);
+				stmtParamCount++;
+			}
+			if (from != null){
+				stmt.setString(stmtParamCount, from);
+				stmtParamCount++;
+			}
+			if (until != null) {
+				stmt.setString(stmtParamCount, until);
+				stmtParamCount++;
+			}
+			
+			ResultSet res = stmt.executeQuery();
+			ArrayList<ParkingPlace> ret = new ArrayList<ParkingPlace>();
+			while (res.next()){
+				ParkingPlace pp = new ParkingPlace(res.getString("username"), res.getFloat("lat"), 
+						res.getFloat("lon"), res.getString("address"), res.getFloat("price"), res.getString("availfrom"), res.getString("availuntil"));
+				pp.setId(res.getInt("id"));
+				ret.add(pp);
+			}
+			conn.close();
+			return ret;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

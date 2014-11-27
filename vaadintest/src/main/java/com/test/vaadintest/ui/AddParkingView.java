@@ -59,9 +59,7 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 		
 		
 		midPanel.setContent(wizard);
-		
-		
-		
+				
 	}
 	
 	
@@ -87,10 +85,10 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 		String availfrom = availFromField.getValue();
 		String availuntil = availUntilField.getValue();
 		
-		//valami ilyesmi:
-		//db.add(new ParkingPlace(...) paraméterbe a fenti adatok, ID-t meg db-nek kellene generálni
-		((MyVaadinUI)UI.getCurrent()).getDB().addParkingPlace(
-				new ParkingPlace(user, lat, lon, address, price, availfrom, availuntil));
+		
+		ParkingPlace pp = new ParkingPlace(user, lat, lon, address, price, availfrom, availuntil);
+		//pp.addImgRatingComment(..., user);
+		((MyVaadinUI)UI.getCurrent()).getDB().addParkingPlace(pp);
 		endWizard("Parking place added! Have a nice day!");
 	}
 

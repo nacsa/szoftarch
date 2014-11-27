@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.test.vaadintest.LocationUtil;
+import com.test.vaadintest.MyVaadinUI;
 import com.test.vaadintest.ParkingPlace;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.tapio.googlemaps.GoogleMap;
@@ -18,6 +19,7 @@ import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.VerticalLayout;
 
@@ -79,42 +81,66 @@ public class ListParkingView extends BaseParkingView{
 		midPanel.setContent(mainLayout);
 		
 	}
-
+	
+	private boolean isFieldFilled(TextField field){
+		return field != null && !"".equals(field.getValue());
+	}
+	
 	private void filterParkings(){
 		map.clearMarkers();
 		
-		
-		//TODO filterelés hiányzik
-		
+
 		//TODO fieldeket validálni kell
 		
-		
-		
-		
-		//csak dummy megoldás a megejelenítéshez
-		List<ParkingPlace> filteredParkings = new ArrayList<ParkingPlace>();
-		ParkingPlace tmpPlace = new ParkingPlace("aaadz", 47.4805856f, 19.1303031f, "Budapest", 0f, "10:00", "18:00");
-		tmpPlace.setId(10);
-		filteredParkings.add(tmpPlace);
-		
-		
-		
-		// ez már éles innentől
 		String address = addressField.getValue();
 		String distanceStr = distanceField.getValue();
+		float distance;
+		if(isFieldFilled(distanceField))
+			distance = Float.parseFloat(distanceStr);
+		else 
+			distance = DEFAULT_DISTANCE_VALUE;
+		float maxprice;
+		if (isFieldFilled(priceField))
+			maxprice = Float.parseFloat(priceField.getValue());
+		else
+			maxprice = 0;
+		String availfrom;
+		if (isFieldFilled(availFromField))
+			availfrom = availFromField.getValue();
+		else
+			availfrom = null;
+		String availuntil;
+		if (isFieldFilled(availUntilField))
+			availuntil = availUntilField.getValue();
+		else
+			availuntil = null;
 		
+		LatLon addresLatlon = null;
+		float distanceInGeoSecs = 0;
+		if (isFieldFilled(addressField)){
+			addresLatlon = LocationUtil.getLatlonFromAddress(address);
+		}
+		else{
+			addresLatlon = null;
+			distanceField.setValue(""); //ilyenkor a distance-ot nem használjuk és ezt jelezzük a usernek is
+		}
+		
+		ArrayList<ParkingPlace> filteredParkings = 
+				((MyVaadinUI)UI.getCurrent()).getDB().queryParkingPlace(addresLatlon, distanceInGeoSecs, maxprice, availfrom, availuntil);
+		
+		//csak dummy megoldás a megejelenítéshez
+		/*List<ParkingPlace> filteredParkings = new ArrayList<ParkingPlace>();
+		ParkingPlace tmpPlace = new ParkingPlace("aaadz", 47.4805856f, 19.1303031f, "Budapest", 0f, "10:00", "18:00");
+		tmpPlace.setId(10);
+		filteredParkings.add(tmpPlace); */
+		
+		// ez már éles innentől
 		for(ParkingPlace place : filteredParkings){
-			if(address != null && !"".equals(address)){//ha filterelni kell address szerint
-				float distance;
-				if(distanceStr != null && !"".equals(distanceStr))
-					distance = Float.parseFloat(distanceStr);
-				else 
-					distance = DEFAULT_DISTANCE_VALUE;
-				LatLon addresLatlon = LocationUtil.getLatlonFromAddress(address);
+			if(isFieldFilled(addressField)){//ha filterelni kell address szerint
+				
 				if(distance > getLatLonDistance(new LatLon(place.getLat(), place.getLon()), addresLatlon)){
 					addParkingMarkerToMap(place);
 				}
-				
 			}else{
 				addParkingMarkerToMap(place);
 			}
@@ -135,7 +161,6 @@ public class ListParkingView extends BaseParkingView{
 			+ "ide az id alapján a href-es mókával már linkelhetünk mindenfélét, "
 			+ "és úgy el lehet érni a majdani részletes képet";
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

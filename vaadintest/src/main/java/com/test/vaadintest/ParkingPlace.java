@@ -5,6 +5,42 @@ import java.util.ArrayList;
 
 public class ParkingPlace {
 	
+	public String getUser() {
+		return user;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public float getPrice() {
+		return price;
+	}
+
+	public String getAvailfrom() {
+		return availfrom;
+	}
+
+	public String getAvailuntil() {
+		return availuntil;
+	}
+
+	public ArrayList<BufferedImage> getImgs() {
+		return imgs;
+	}
+
+	public ArrayList<Integer> getRatings() {
+		return ratings;
+	}
+
+	public ArrayList<String> getComments() {
+		return comments;
+	}
+
+	public ArrayList<String> getRatingusers() {
+		return ratingusers;
+	}
+
 	String user;
 	float lat;
 	float lon;

@@ -56,7 +56,7 @@ public class InitWizardStep implements WizardStep{
 		return content;
 	}
 
-	public boolean validateTimFormat(final String time){
+	public boolean validateTimeFormat(final String time){
 		 
 		  matcher = pattern.matcher(time);
 		  return matcher.matches();
@@ -70,12 +70,24 @@ public class InitWizardStep implements WizardStep{
 			allow = false;
 		}
 
+		//nem feltétlenül muszáj ezeket kitölteni, a db jól kezeli
 		if(availFromField.getValue() == null || availFromField.getValue().equals("")){
 			allow = false;
 			Notification.show("Time interval is not set!");
 		}
 		else {
-			if ( ! validateTimFormat(availFromField.getValue()) || validateTimFormat(availUntilField.getValue())){ 
+			if ( ! validateTimeFormat(availFromField.getValue())){ 
+				Notification.show("Time format should be HH:MM.");
+				allow = false;
+			}
+		}
+		
+		if(availUntilField.getValue() == null || availUntilField.getValue().equals("")){
+			allow = false;
+			Notification.show("Time interval is not set!");
+		}
+		else {
+			if ( ! validateTimeFormat(availUntilField.getValue())){ 
 				Notification.show("Time format should be HH:MM.");
 				allow = false;
 			}
