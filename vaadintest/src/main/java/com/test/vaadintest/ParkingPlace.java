@@ -116,4 +116,12 @@ public class ParkingPlace {
 		ratingusers.add(user);
 	}
 	
+	public boolean hasAnyFieldGiven(){
+		if (id == 0) return false;
+		if (user != null || lat != 0 || lon != 0 || address != null || price != 0 
+				|| availfrom != null || availuntil != null ) 
+			return true;
+		return false;
+	}
+	
 }

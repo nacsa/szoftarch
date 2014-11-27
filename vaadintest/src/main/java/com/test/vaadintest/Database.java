@@ -7,6 +7,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
@@ -267,92 +270,7 @@ public class Database {
 		}
 		return ret;
 	}
-	
-	/**
-	 * @return Visszaadja az összes Parkolóhelyet, amely címében benne van az "address" string.
-	 * Feltöli a parkolóhelyről mondott összes véleményt, képet, értékelést is.
-	 */
-	public ArrayList<ParkingPlace> queryParkingPlaceByAddress(String address){
-		String query = "SELECT * FROM parking"
-				+ " WHERE address LIKE ? ";
-		ArrayList<ParkingPlace> ret = null;
-		
-		try {
-			if (conn.isClosed()) connectToDb();
-			PreparedStatement stmt = conn.prepareStatement(query);
-			address = new String ("%").concat(address.concat(new String("%")));
-			stmt.setString(1, address);
-			
-			ResultSet res = stmt.executeQuery();
-			ret = (gatherImgRatingCommentById(res));
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return ret;
-	}
-	
-	/**
-	 * Lekéri azokat a parkolóhelyeket, melyeknek az ára nem haladja meg a "maxprice" paramétert
-	 * @param maxprice
-	 * @return
-	 */
-	public ArrayList<ParkingPlace> queryParkingPlaceByPrice(float maxprice){
-		String query = "SELECT * FROM parking "
-				+ "WHERE price <= ? ";
-		
-		ArrayList<ParkingPlace> ret = null;
-		
-		try {
-			if (conn.isClosed()) connectToDb();
-			PreparedStatement stmt = conn.prepareStatement(query);
-			stmt.setFloat(1, maxprice);
-			
-			ResultSet res = stmt.executeQuery();
-			ret = (gatherImgRatingCommentById(res));
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return ret;
-	}
-	
-	/**
-	 * Visszatér azokkal a parkolóhelyekkel, amelyeknek rendelkezésre állása tartalmazza a megadott intervallumot.
-	 * Ha az egyik érték hiányzik a DBben, akkor azt mindenre teljesülőnek tekinti.
-	 * @param from
-	 * @param until
-	 * @return
-	 */
-	public ArrayList<ParkingPlace> queryParkingPlaceByTime(String from, String until){
-		String query = "SELECT * FROM parking "
-				+ "WHERE "
-				+ "(time(availfrom) <= time( ? ) OR availfrom IS NULL) AND "
-				+ "(time(availuntil) >= time ( ? ) OR availuntil IS NULL)";
-		
-		ArrayList<ParkingPlace> ret = null;
-		
-		try {
-			if (conn.isClosed()) connectToDb();
-			PreparedStatement stmt = conn.prepareStatement(query);
-			stmt.setString(1, from);
-			stmt.setString(2, until);
-			
-			ResultSet res = stmt.executeQuery();
-			ret = (gatherImgRatingCommentById(res));	
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return ret;
-	}
-	
+
 	/**
 	 * Összetett lekérédst hajt végre az adatbázison.
 	 * @param around Milyen földrajzi koordináta körül keressünk.
@@ -419,5 +337,109 @@ public class Database {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	/**
+	 * Visszaadja egy parkolóhelyről az összes adatát a véleményekkel, értékeléssekkel képekkel együtt,
+	 * ha kérjük a ratings paraméterrel.
+	 * @param id
+	 * @param ratings 
+	 * @return
+	 */
+	public ParkingPlace queryAllDataOfOneParkingPlace(int id, boolean ratings){
+		String query = "SELECT * FROM parking ";
+		if (ratings) query += " JOIN parkrating ON parking.id = parkrating.id ";
+		query += " WHERE id = ? ";
+		try {
+			if (conn.isClosed()) connectToDb();
+			PreparedStatement stmt = conn.prepareStatement(query);
+			
+			stmt.setInt(1, id);
+			ResultSet res = stmt.executeQuery();
+			res.next();
+			ParkingPlace pp = new ParkingPlace(res.getString("username"), res.getFloat("lat"), res.getFloat("lon"), 
+					res.getString("address"), res.getFloat("price"), res.getString("availfrom"), res.getString("availuntil"));
+			pp.setId(res.getInt("id"));
+			if (ratings) {
+				res.beforeFirst();
+				while (res.next()) {
+					pp.addImgRatingComment(ImageIO.read(res.getBlob("picture")
+							.getBinaryStream()), res.getInt("rating"), res
+							.getString("comment"), res.getString("username"));
+				}
+			}
+			conn.close();
+			return pp;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	/**
+	 * Módosít teszőleges számú és kombinációjú mezőt a parking táblában.
+	 * @param pp
+	 * @return
+	 */
+	public boolean modifyDataOfParkingPlace(ParkingPlace pp){
+		String updateBase = "UPDATE parking SET ";
+		if ( ! pp.hasAnyFieldGiven()) return false;
+		else{
+			HashMap<String,String> strings = new HashMap<String, String>();
+			HashMap<String, Float> floats = new HashMap<String, Float>(); 
+			if (pp.user != null)
+				strings.put("username", pp.user);
+			if (pp.lat != 0)
+				floats.put("lat", pp.lat);
+			if (pp.lon != 0)
+				floats.put("lon", pp.lon);
+			if (pp.price != 0)
+				floats.put("price", pp.price);
+			if (pp.address != null)
+				strings.put("address", pp.address);
+			if (pp.availfrom != null)
+				strings.put("availfrom", pp.availfrom);
+			if (pp.availuntil != null)
+				strings.put("availuntil", pp.availuntil);
+			
+			Iterator<Entry<String, String>> its = strings.entrySet().iterator();
+			while ( ! its.hasNext())
+				updateBase += its.next().getKey().concat(" = ? , ");
+			Iterator<Entry<String, Float>> itf = floats.entrySet().iterator();
+			while (! itf.hasNext())
+				updateBase += itf.next().getKey().concat(" = ? , ");
+			
+			updateBase = updateBase.substring(0, updateBase.length() - 2);
+			updateBase += " WHERE id = ? ";
+			try {
+				if (conn.isClosed()) connectToDb();
+				PreparedStatement stmt = conn.prepareStatement(updateBase);
+				
+				Iterator<Entry<String, String>> its2 = strings.entrySet().iterator();
+				Iterator<Entry<String, Float>> itf2 = floats.entrySet().iterator();
+				int idx = 1;
+				
+				while ( ! its2.hasNext()){
+					stmt.setString(idx, its2.next().getValue());
+					idx++;
+				}
+				while (! itf2.hasNext()){
+					stmt.setFloat(idx, itf2.next().getValue());
+					idx++;
+				}
+				
+				stmt.setInt(idx, pp.getId());
+				if (stmt.executeUpdate() == 0) { conn.close(); return false; }
+				conn.commit();
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return true;
 	}
 }

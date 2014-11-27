@@ -155,30 +155,27 @@ public class ListParkingView extends BaseParkingView{
 		LatLon placeLatLon = new LatLon(place.getLat(), place.getLon());
 		GoogleMapMarker marker = new GoogleMapMarker("parking", placeLatLon, false);
 		String infoWindowContent="";
+		
+		GoogleMapInfoWindow infoWindow = new GoogleMapInfoWindow(infoWindowContent, marker);
+		infoWindow.setWidth("200px");
+		infoWindow.setHeight("150px");
+		
 		try {
-			infoWindowContent = "Content: <br/> "
-			+ "ID: "+place.getId() + "<br/>" 
-			+ "ide az id alapján a href-es mókával már linkelhetünk mindenfélét, "
-			+ "és úgy el lehet érni a majdani részletes képet";
+			map.addMarker(marker);
+			map.addMarkerClickListener( new OpenInfoWindowMarkerClickListener(map, marker, infoWindow, place.getId()));
+			map.setCenter(placeLatLon);
+			map.setZoom(15);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		GoogleMapInfoWindow infoWindow = new GoogleMapInfoWindow(infoWindowContent, marker);
-		infoWindow.setWidth("300px");
-		infoWindow.setHeight("200px");
-		
-		map.addMarker(marker);
-		map.addMarkerClickListener( new OpenInfoWindowMarkerClickListener(map, marker, infoWindow));
-		map.setCenter(placeLatLon);
-		map.setZoom(15);
 	}
 	
 	private float getLatLonDistance(LatLon place1, LatLon place2){
-		double dlat = place2.getLat() - place1.getLat();
-		double dlon = place2.getLon() - place1.getLon();
+		double dlat = (place2.getLat() - place1.getLat()) / 180.0 * Math.PI;
+		double dlon = (place2.getLon() - place1.getLon()) / 180.0 * Math.PI;
 		
-		double a = Math.pow(Math.sin(dlat/2.0), 2.0) + Math.cos(place1.getLat()) * Math.cos(place2.getLat()) * Math.pow(Math.sin(dlon/2.0), 2.0); 
+		double a = Math.pow(Math.sin(dlat/2.0), 2.0) + 
+				Math.cos(place1.getLat()/ 180.0 * Math.PI) * Math.cos(place2.getLat()/ 180.0 * Math.PI) * Math.pow(Math.sin(dlon/2.0), 2.0); 
 		
 		double c = 2.0 * Math.atan2(Math.sqrt(a), Math.sqrt(1.0-a));
 		
@@ -191,13 +188,15 @@ public class ListParkingView extends BaseParkingView{
 		private final GoogleMap map;
 		private final GoogleMapMarker marker;
 		private final GoogleMapInfoWindow infoWindow;
+		private final int idOfParkingPlace;
 		
 		public OpenInfoWindowMarkerClickListener(GoogleMap map,
-				GoogleMapMarker marker, GoogleMapInfoWindow infoWindow) {
+				GoogleMapMarker marker, GoogleMapInfoWindow infoWindow, int idOParkingPlace) {
 			super();
 			this.map = map;
 			this.marker = marker;
 			this.infoWindow = infoWindow;
+			this.idOfParkingPlace = idOParkingPlace;
 		}
 
 
@@ -205,8 +204,22 @@ public class ListParkingView extends BaseParkingView{
 
 		@Override
 		public void markerClicked(GoogleMapMarker clickedMarker) {
-			if(clickedMarker.equals(marker))
+			if(clickedMarker.equals(marker)){
 				map.openInfoWindow(infoWindow);
+				try {
+					ParkingPlace thispp = ((MyVaadinUI)UI.getCurrent()).getDB().
+							queryAllDataOfOneParkingPlace(idOfParkingPlace, false);
+					String infoWindowContent = "Content: <br/> "
+							+ "ID: "+thispp.getId() + "<br/>" 
+							+ "Address: " + thispp.getAddress() + "<br/>"
+							+ "Added by " + thispp.getUser();
+					infoWindow.setContent(infoWindowContent);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+						
+						
+			}
 			
 		}
 		
