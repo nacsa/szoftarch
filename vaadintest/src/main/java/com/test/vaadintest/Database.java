@@ -241,36 +241,7 @@ public class Database {
 		conn.close();
 	}
 	
-	/**
-	 * Összegyűjti az összes parkolóhelyhez megadott képet, kommentet és véleményt.
-	 * @param res
-	 * @return
-	 * @throws SQLException
-	 * @throws IOException
-	 * @throws Exception
-	 */
-	private ArrayList<ParkingPlace> gatherImgRatingCommentById(ResultSet res) throws SQLException, IOException, Exception{
-		ArrayList<ParkingPlace> ret = new ArrayList<ParkingPlace>();
-		while (res.next()){
-			ParkingPlace pp = new ParkingPlace(res.getString("username"), res.getFloat("lat"), 
-					res.getFloat("lon"), res.getString("address"), res.getFloat("price"), res.getString("availfrom"), res.getString("availuntil"));
-			pp.setId(res.getInt("id"));
-			
-			String ratings = "SELECT * FROM parkrating WHERE "
-					+ "id = ? ";
-			PreparedStatement stmt2 = conn.prepareStatement(ratings);
-			stmt2.setInt(1, pp.getId());
-			stmt2.setString(2, pp.user);
-			ResultSet resrating = stmt2.executeQuery();
-			
-			while (resrating.next()){
-				pp.addImgRatingComment(ImageIO.read( resrating.getBlob("picture").getBinaryStream() ), 
-						resrating.getInt("rating"), resrating.getString("comment"), resrating.getString("username"));
-			}
-		}
-		return ret;
-	}
-
+	
 	/**
 	 * Összetett lekérédst hajt végre az adatbázison.
 	 * @param around Milyen földrajzi koordináta körül keressünk.
@@ -380,6 +351,7 @@ public class Database {
 	
 	/**
 	 * Módosít teszőleges számú és kombinációjú mezőt a parking táblában.
+	 * DE comment, értékelés, kép módosításához nem használható!
 	 * @param pp
 	 * @return
 	 */
@@ -405,10 +377,10 @@ public class Database {
 				strings.put("availuntil", pp.availuntil);
 			
 			Iterator<Entry<String, String>> its = strings.entrySet().iterator();
-			while ( ! its.hasNext())
+			while (its.hasNext())
 				updateBase += its.next().getKey().concat(" = ? , ");
 			Iterator<Entry<String, Float>> itf = floats.entrySet().iterator();
-			while (! itf.hasNext())
+			while (itf.hasNext())
 				updateBase += itf.next().getKey().concat(" = ? , ");
 			
 			updateBase = updateBase.substring(0, updateBase.length() - 2);
@@ -421,11 +393,11 @@ public class Database {
 				Iterator<Entry<String, Float>> itf2 = floats.entrySet().iterator();
 				int idx = 1;
 				
-				while ( ! its2.hasNext()){
+				while (its2.hasNext()){
 					stmt.setString(idx, its2.next().getValue());
 					idx++;
 				}
-				while (! itf2.hasNext()){
+				while (itf2.hasNext()){
 					stmt.setFloat(idx, itf2.next().getValue());
 					idx++;
 				}
@@ -440,6 +412,18 @@ public class Database {
 				e.printStackTrace();
 			}
 		}
+		return true;
+	}
+	
+	/**
+	 * Az adatokat a parkolóhely azonosítójával és az értékelő user nevével azonosítjuk.
+	 * @param id
+	 * @param user
+	 * @return
+	 */
+	public boolean modifyImgRatingCommentOfParkingPlace(ParkingPlace pp){
+		String update = "UPDATE parkrating SET ";
+		//TODO
 		return true;
 	}
 }

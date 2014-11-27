@@ -89,7 +89,6 @@ public class ListParkingView extends BaseParkingView{
 	private void filterParkings(){
 		map.clearMarkers();
 		
-
 		//TODO fieldeket validálni kell
 		
 		String address = addressField.getValue();
@@ -128,11 +127,7 @@ public class ListParkingView extends BaseParkingView{
 		ArrayList<ParkingPlace> filteredParkings = 
 				((MyVaadinUI)UI.getCurrent()).getDB().queryParkingPlace(addresLatlon, distanceInGeoSecs, maxprice, availfrom, availuntil);
 		
-		//csak dummy megoldás a megejelenítéshez
-		/*List<ParkingPlace> filteredParkings = new ArrayList<ParkingPlace>();
-		ParkingPlace tmpPlace = new ParkingPlace("aaadz", 47.4805856f, 19.1303031f, "Budapest", 0f, "10:00", "18:00");
-		tmpPlace.setId(10);
-		filteredParkings.add(tmpPlace); */
+		//TODO: A TÁVOLSÁG ALAPJÁN SZŰRÉST MÁR KITALÁLTAM, DE MÉG NINCS BENN, msot az összeset visszaadja a DB-ből.
 		
 		// ez már éles innentől
 		for(ParkingPlace place : filteredParkings){
@@ -198,9 +193,6 @@ public class ListParkingView extends BaseParkingView{
 			this.infoWindow = infoWindow;
 			this.idOfParkingPlace = idOParkingPlace;
 		}
-
-
-
 
 		@Override
 		public void markerClicked(GoogleMapMarker clickedMarker) {
