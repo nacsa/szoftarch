@@ -86,6 +86,12 @@ public class Database {
 		}
 	}
 	
+	/**
+	 * Megnézi hogy a user helyes jelszót adott-e meg.
+	 * @param name
+	 * @param password
+	 * @return
+	 */
 	public boolean checkUserAndPassword(String name, String password){
 		String hashed = encryptPass(password);
 		try {
@@ -137,6 +143,28 @@ public class Database {
 		System.out.println("User added");
 		
 		return true;
+	}
+	
+	/**
+	 * Ellenőrzi, hogy van-e már regisztráció ezzel a névvel.
+	 * @param name
+	 * @return
+	 */
+	public boolean isUsernameAlreadyTaken(String name){
+		String checkusername = "SELECT * FROM users"
+				+ " WHERE username = ? ";
+		try {
+			if (conn.isClosed()) connectToDb();
+			PreparedStatement stmt = conn.prepareStatement(checkusername);
+			stmt.setString(1, name);
+			ResultSet result = stmt.executeQuery();
+			conn.close();
+			if (result.next()) return true;
+			else return false;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
 	public boolean addParkingPlace(ParkingPlace pp){
@@ -246,7 +274,7 @@ public class Database {
 			stmt.setString(1, address);
 			
 			ResultSet res = stmt.executeQuery();
-			ret.add(gatherImgRatingCommentById(res));	
+			ret.add(gatherImgRatingCommentById(res));
 			
 		} catch (SQLException e) {
 			e.printStackTrace();

@@ -88,11 +88,14 @@ public class RegistrationView extends VerticalLayout implements View{
 			return;
 		}
 		
-		((MyVaadinUI)UI.getCurrent()).getDB().addUser(name, password);
-		Notification.show("Successfull registration!");
+		if (((MyVaadinUI)UI.getCurrent()).getDB().addUser(name, password))
+			{
+				Notification.show("Successfull registration!");
+				//login after registration
+				((MyVaadinUI)UI.getCurrent()).setLoginedUserName(name);
+			}
+		else Notification.show("Registration failed!");
 		
-		//login after registration
-		((MyVaadinUI)UI.getCurrent()).setLoginedUserName(name);
 		navigator.navigateTo("");
 		
 	}

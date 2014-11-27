@@ -10,9 +10,8 @@ public class LoginUtil {
 		else return false;
 	}
 	
-	//TODO DB-ből kitölteni
+	
 	public static boolean isUserNameAlreadyTaken(String username){
-		
-		return username.equals("aaa"); //dummy
+		return ((MyVaadinUI)UI.getCurrent()).getDB().isUsernameAlreadyTaken(username);
 	}
 }
