@@ -1,39 +1,46 @@
 package com.test.vaadintest.ui;
 
+import java.awt.image.BufferedImage;
+
 import org.vaadin.teemu.wizards.WizardStep;
 
 import com.vaadin.ui.Component;
 
 public class ImageUploadWizardStep implements WizardStep{
 	
+	UploadBox uploadBox;
+	BufferedImage parkingImage;
 	
-	public ImageUploadWizardStep() {
-		// TODO Auto-generated constructor stub
+	public ImageUploadWizardStep(BufferedImage parkingImage) {
+		this.parkingImage = parkingImage;
+		uploadBox = new UploadBox();
 	}
 	
 	
 	@Override
 	public String getCaption() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return "Upload image";
 	}
 
 	@Override
 	public Component getContent() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return uploadBox;
 	}
 
 	@Override
 	public boolean onAdvance() {
-		// TODO Auto-generated method stub
-		return false;
+		if(!uploadBox.isUploadValid())
+			return false;
+		
+		parkingImage = uploadBox.getUploadedBufferedImage(); 
+		return true;
 	}
 
 	@Override
 	public boolean onBack() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 }

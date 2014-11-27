@@ -21,21 +21,19 @@ public class InitWizardStep implements WizardStep{
 
 	OptionGroup optionGroup;
 	TextField priceField;
-	TextField intervalField;
-	
-	private static String optionAddress = "Use Address";
-	private static String optionMap = "Use Map";
-	private static String optionLocation = "Use Location";
-	
+	TextField availFromField;
+	TextField availUntilField;
+
 	private Pattern pattern;
 	private Matcher matcher;
 	private static final String TIME24HOURS_PATTERN = 
             "([01]?[0-9]|2[0-3]):[0-5][0-9]";
 	
-	public InitWizardStep(OptionGroup optionGroup, TextField priceField, TextField intervalField) {
+	public InitWizardStep(OptionGroup optionGroup, TextField priceField, TextField availFromField, TextField availUntilField) {
 		this.optionGroup = optionGroup;
 		this.priceField = priceField;
-		this.intervalField = intervalField;
+		this.availFromField = availFromField;
+		this.availUntilField = availUntilField;
 		
         pattern = Pattern.compile(TIME24HOURS_PATTERN);
 	}
@@ -49,21 +47,16 @@ public class InitWizardStep implements WizardStep{
 	public Component getContent() {
 		VerticalLayout content = new VerticalLayout();
 		
-		GridLayout gridLayout = new GridLayout(3,4);
-				
 		content.addComponent(optionGroup);
-		content.addComponent(gridLayout);
 		
-		gridLayout.addComponent(new Label("Price: "),0,0);
-		gridLayout.addComponent(new Label("Interval: "),0,1);
-		
-		gridLayout.addComponent(priceField,1,0);
-		gridLayout.addComponent(intervalField,1,1);
+		content.addComponent(priceField);
+		content.addComponent(availFromField);
+		content.addComponent(availUntilField);
 		
 		return content;
 	}
 
-	public boolean validate(final String time){
+	public boolean validateTimFormat(final String time){
 		 
 		  matcher = pattern.matcher(time);
 		  return matcher.matches();
@@ -77,17 +70,16 @@ public class InitWizardStep implements WizardStep{
 			allow = false;
 		}
 
-		if(intervalField.getValue() == null || intervalField.getValue().equals("")){
+		if(availFromField.getValue() == null || availFromField.getValue().equals("")){
 			allow = false;
 			Notification.show("Time interval is not set!");
 		}
 		else {
-			if ( ! validate(intervalField.getValue())){ 
+			if ( ! validateTimFormat(availFromField.getValue()) || validateTimFormat(availUntilField.getValue())){ 
 				Notification.show("Time format should be HH:MM.");
 				allow = false;
 			}
 		}
-		//TODO: FORMÁTUM ellenőrzés a másik fieldre is!!
 		
 		return allow;
 	}

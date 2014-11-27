@@ -53,7 +53,7 @@ public class BaseParkingView extends VerticalLayout implements View{
 		MenuBar.Command listCommand = new MenuBar.Command() {	
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				navigator.navigateTo("");
+				navigator.navigateTo("listparking");
 			}
 		};		
 		MenuItem listParkingMenu = navigationBar.addItem("Parkings", null, listCommand);
@@ -94,6 +94,15 @@ public class BaseParkingView extends VerticalLayout implements View{
 			userBar.addItem(user, null,null);
 			userBar.addItem("logout", null,logoutCommand);
 		}else{
+			
+			MenuBar.Command registCommand = new MenuBar.Command() {	
+				@Override
+				public void menuSelected(MenuItem selectedItem) {
+					navigator.navigateTo(RegistrationView.name);
+				}
+			};
+			userBar.addItem("registration", null,registCommand);
+			
 			MenuBar.Command loginCommand = new MenuBar.Command() {	
 				@Override
 				public void menuSelected(MenuItem selectedItem) {
@@ -115,7 +124,14 @@ public class BaseParkingView extends VerticalLayout implements View{
 		Notification.show("Successfull logout!");
 		
 		
-		userBar.removeItems();	
+		userBar.removeItems();
+		MenuBar.Command registCommand = new MenuBar.Command() {	
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				navigator.navigateTo(RegistrationView.name);
+			}
+		};
+		userBar.addItem("registration", null,registCommand);
 		MenuBar.Command loginCommand = new MenuBar.Command() {	
 			@Override
 			public void menuSelected(MenuItem selectedItem) {

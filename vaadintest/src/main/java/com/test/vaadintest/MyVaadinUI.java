@@ -7,7 +7,10 @@ import javax.servlet.annotation.WebServlet;
 
 import com.test.vaadintest.ui.AddParkingView;
 import com.test.vaadintest.ui.HomeView;
+import com.test.vaadintest.ui.ListParkingView;
 import com.test.vaadintest.ui.LoginView;
+import com.test.vaadintest.ui.RegistrationView;
+import com.test.vaadintest.ui.SingleParkingView;
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
@@ -53,10 +56,20 @@ public class MyVaadinUI extends UI
         
         // Create and register the views
         navigator.addView(LoginView.name, new LoginView(navigator));
+        navigator.addView(RegistrationView.name, new RegistrationView(navigator));
+        
         AddParkingView addview = new AddParkingView(navigator);
         navigator.addView(addview.getName(), addview);
+        
         HomeView homeview = new HomeView(navigator);
         navigator.addView(homeview.getName(), homeview);
+        
+        ListParkingView listView = new ListParkingView(navigator);
+        navigator.addView(listView.getName(), listView);
+        
+        SingleParkingView singleParkingView = new SingleParkingView(navigator);
+        navigator.addView(singleParkingView.getName(), singleParkingView);
+        
         
         final VerticalLayout layout = new VerticalLayout();
         //final HorizontalLayout layout = new HorizontalLayoutLayout();

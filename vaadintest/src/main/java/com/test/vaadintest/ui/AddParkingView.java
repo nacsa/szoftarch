@@ -1,5 +1,7 @@
 package com.test.vaadintest.ui;
 
+import java.awt.image.BufferedImage;
+
 import org.vaadin.teemu.wizards.Wizard;
 import org.vaadin.teemu.wizards.event.WizardCancelledEvent;
 import org.vaadin.teemu.wizards.event.WizardCompletedEvent;
@@ -20,8 +22,10 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 
 	TextField addressField;
 	TextField priceField;
-	TextField intervallumField;
+	TextField availFromField;
+	TextField availUntilField;
 	LatLon parkingLatLon;
+	BufferedImage parkingImage;
 	OptionGroup optionGroup;
 	
 	Wizard wizard;
@@ -41,14 +45,16 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 		optionGroup.addItem(optionLocation);
 		optionGroup.select(optionAddress);
 	
-		addressField = new TextField();
-		priceField = new TextField();
-		intervallumField = new TextField();
+		addressField = new TextField("Address");
+		priceField = new TextField("Price");
+		availFromField = new TextField("Available from");
+		availUntilField = new TextField("Available until");
 		
 		
 		wizard = new Wizard();
-		wizard.addStep(new InitWizardStep(optionGroup, priceField, intervallumField));
+		wizard.addStep(new InitWizardStep(optionGroup, priceField, availFromField, availUntilField));
 		wizard.addStep(new LocationWizardStep(optionGroup, addressField, parkingLatLon));
+		wizard.addStep(new ImageUploadWizardStep(parkingImage));
 		wizard.addListener(this);
 		
 		
@@ -78,9 +84,8 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 		float lon = (float)parkingLatLon.getLon();
 		String address = addressField.getValue();
 		float price = Float.parseFloat(priceField.getValue());
-		String availfrom = intervallumField.getValue();
-		//TODO: KELL MÉG EGY INTERVALLUM
-		String availuntil = intervallumField.getValue();
+		String availfrom = availFromField.getValue();
+		String availuntil = availUntilField.getValue();
 		
 		//valami ilyesmi:
 		//db.add(new ParkingPlace(...) paraméterbe a fenti adatok, ID-t meg db-nek kellene generálni

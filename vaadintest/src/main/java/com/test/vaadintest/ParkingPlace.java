@@ -58,6 +58,15 @@ public class ParkingPlace {
 		else return id;
 	}
 	
+	
+	public float getLat(){
+		return lat;
+	}
+	
+	public float getLon(){
+		return lon;
+	}
+	
 	/**
 	 * Mindegyik paraméter lehet null is.
 	 * @param img
@@ -70,4 +79,5 @@ public class ParkingPlace {
 		comments.add(comment);
 		ratingusers.add(user);
 	}
+	
 }
