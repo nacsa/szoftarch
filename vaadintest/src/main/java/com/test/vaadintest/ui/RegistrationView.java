@@ -33,8 +33,11 @@ public class RegistrationView extends VerticalLayout implements View{
 
 		setSizeFull();
 		GridLayout gridLayout = new GridLayout(2, 4);
+		gridLayout.setSpacing(true);
+		gridLayout.setMargin(true);
 		
 		Panel panel = new Panel();
+		panel.addStyleName("v-login-panel");
 		
 		
 		nameField = new TextField("Login name");
@@ -57,6 +60,7 @@ public class RegistrationView extends VerticalLayout implements View{
 	
 		
 		panel.setContent(gridLayout);
+		panel.setWidth("350px");
 		
 		addComponent(panel);
 		setComponentAlignment(panel, Alignment.MIDDLE_CENTER);

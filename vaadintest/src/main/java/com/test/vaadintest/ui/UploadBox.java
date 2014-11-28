@@ -93,6 +93,10 @@ class UploadBox extends CustomComponent
 
     public void uploadSucceeded(SucceededEvent event) {
         image.setVisible(true);
+        
+
+        image.addStyleName("v-uploadbox-image");
+        
        // image.setCaption("Uploaded Image " + filename +
        //         " has length " + os.toByteArray().length);
         

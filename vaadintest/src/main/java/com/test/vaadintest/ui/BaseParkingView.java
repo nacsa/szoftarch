@@ -28,10 +28,11 @@ public class BaseParkingView extends VerticalLayout implements View{
 		navigator = _navigator;
 		//setSizeFull();
 		topPanel = new Panel();
-		topPanel.setStyleName("toppanel");
+		topPanel.addStyleName("v-toppanel");
 		topPanel.setHeight(100, Unit.PIXELS);
 		addComponent(topPanel);
 		HorizontalLayout topLayout = new HorizontalLayout();
+		topLayout.setSpacing(true);
 		topLayout.setSizeFull();
 		topPanel.setContent(topLayout);
 		MenuBar navigationBar = new MenuBar();
@@ -69,7 +70,7 @@ public class BaseParkingView extends VerticalLayout implements View{
 		
 		
 		midPanel = new Panel();
-		midPanel.setStyleName("midpanel");
+		midPanel.addStyleName("v-midpanel");
 		midPanel.setSizeFull();
 		addComponent(midPanel);
 		setComponentAlignment(midPanel, Alignment.TOP_CENTER);

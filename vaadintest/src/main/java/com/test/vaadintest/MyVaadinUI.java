@@ -24,6 +24,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
@@ -35,6 +36,7 @@ public class MyVaadinUI extends UI
 	Navigator navigator;
     protected static final String MAINVIEW = "main";
 
+    private String hostUrl;
 	private Database db;
 	private Map map;
 	private String loginedUserName;
@@ -48,12 +50,12 @@ public class MyVaadinUI extends UI
 
     @Override
     protected void init(VaadinRequest request) {
-    	getPage().setTitle("Navigation Example");
+    	getPage().setTitle("Parking places - find your place in the world");
         
         // Create a navigator to control the views
         navigator = new Navigator(this, this);
         loginedUserName = null;
-        
+        hostUrl = getPage().getLocation().getHost() + ":" + getPage().getLocation().getPort() + getPage().getLocation().getPath();
         // Create and register the views
         navigator.addView(LoginView.name, new LoginView(navigator));
         navigator.addView(RegistrationView.name, new RegistrationView(navigator));
@@ -70,6 +72,15 @@ public class MyVaadinUI extends UI
         SingleParkingView singleParkingView = new SingleParkingView(navigator);
         navigator.addView(singleParkingView.getName(), singleParkingView);
         
+        //nemjó
+        if(request.getParameter("mobile")!=null){
+        	System.out.println("mobile" + request.getParameter("mobile"));
+        }
+        
+        //ez faja
+        if(getPage().getWebBrowser().isTouchDevice()){
+        	System.out.println("touchdevice");
+        }
         
         final VerticalLayout layout = new VerticalLayout();
         //final HorizontalLayout layout = new HorizontalLayoutLayout();
@@ -78,25 +89,16 @@ public class MyVaadinUI extends UI
         setContent(layout);
 
         db = new Database();
-        map = new Map();
-        
-        layout.addComponent(map.googleMap);
-        layout.setExpandRatio(map.googleMap, 1.0f);
-        
-        Button button = new Button("Click Me");
-        button.addClickListener(new Button.ClickListener() {
-            public void buttonClick(ClickEvent event) {
-                layout.addComponent(new Label("Thank you for clicking"));
-                db.addUser("Balazs", "asdasd");
-            }
-        });
-        layout.addComponent(button);
-        
+           
         
     }
     
     public Database getDB(){
     	return db;
+    }
+    
+    public String getHostUrl(){
+    	return hostUrl;
     }
     
     public String getLoginedUserName() {

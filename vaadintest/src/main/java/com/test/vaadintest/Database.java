@@ -172,6 +172,29 @@ public class Database {
 		}
 	}
 	
+	/**
+	 * Ellenőrzi, hogy létezik-e már parkolóhely ezzel az id-vel.
+	 * @param name
+	 * @return
+	 */
+	public boolean doParkingPLaceExist(int id){
+		String checkis = "SELECT * FROM parking"
+				+ " WHERE id = ? ";
+		try {
+			if (conn.isClosed()) connectToDb();
+			PreparedStatement stmt = conn.prepareStatement(checkis);
+			stmt.setInt(1, id);
+			ResultSet result = stmt.executeQuery();
+			conn.close();
+			if (result.next()) return true;
+			else return false;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	
 	public boolean addParkingPlace(ParkingPlace pp){
 		String addpark = "INSERT INTO parking (username, lat, lon, address, price, availfrom, availuntil)"
 				+ "VALUES (?, ?, ?, ?, ?, ?, ?)";

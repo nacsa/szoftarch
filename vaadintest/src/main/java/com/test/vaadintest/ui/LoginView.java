@@ -34,8 +34,11 @@ public class LoginView extends VerticalLayout implements View{
 
 		setSizeFull();
 		GridLayout gridLayout = new GridLayout(2, 3);
+		gridLayout.setSpacing(true);
+		gridLayout.setMargin(true);
 		
 		Panel panel = new Panel();
+		panel.addStyleName("v-login-panel");
 		
 		Label nameLabel = new Label("Login name:");
 		Label pwLabel = new Label("Password:");
@@ -59,7 +62,7 @@ public class LoginView extends VerticalLayout implements View{
 	
 		
 		panel.setContent(gridLayout);
-		
+		panel.setWidth("350px");
 		addComponent(panel);
 		setComponentAlignment(panel, Alignment.MIDDLE_CENTER);
 

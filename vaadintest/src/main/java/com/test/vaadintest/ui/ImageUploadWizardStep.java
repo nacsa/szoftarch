@@ -9,10 +9,8 @@ import com.vaadin.ui.Component;
 public class ImageUploadWizardStep implements WizardStep{
 	
 	UploadBox uploadBox;
-	BufferedImage parkingImage;
 	
-	public ImageUploadWizardStep(BufferedImage parkingImage) {
-		this.parkingImage = parkingImage;
+	public ImageUploadWizardStep() {
 		uploadBox = new UploadBox();
 	}
 	
@@ -31,16 +29,24 @@ public class ImageUploadWizardStep implements WizardStep{
 
 	@Override
 	public boolean onAdvance() {
-		if(!uploadBox.isUploadValid())
-			return false;
-		
-		parkingImage = uploadBox.getUploadedBufferedImage(); 
 		return true;
 	}
 
 	@Override
 	public boolean onBack() {
 		return true;
+	}
+	
+	public BufferedImage getLoadedImage(){
+		if(!uploadBox.isUploadValid())
+			return null;
+		
+		return uploadBox.getUploadedBufferedImage(); 
+		
+	}
+	
+	public void reset(){
+		uploadBox = new UploadBox();
 	}
 
 }

@@ -2,6 +2,7 @@ package com.test.vaadintest.ui;
 
 import java.awt.image.BufferedImage;
 
+import org.vaadin.teemu.ratingstars.RatingStars;
 import org.vaadin.teemu.wizards.Wizard;
 import org.vaadin.teemu.wizards.event.WizardCancelledEvent;
 import org.vaadin.teemu.wizards.event.WizardCompletedEvent;
@@ -15,6 +16,7 @@ import com.vaadin.navigator.Navigator;
 import com.vaadin.tapio.googlemaps.client.LatLon;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.OptionGroup;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 
@@ -25,10 +27,15 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 	TextField availFromField;
 	TextField availUntilField;
 	LatLon parkingLatLon;
-	BufferedImage parkingImage;
 	OptionGroup optionGroup;
+	TextArea commentArea;
+	RatingStars rating;
 	
 	Wizard wizard;
+	InitWizardStep initStep;
+	LocationWizardStep locationStep;
+	ImageUploadWizardStep imageStep;
+	CommentRatingWizardStep commentStep;
 	
 	private static String optionAddress = "Use Address";
 	private static String optionMap = "Use Map";
@@ -49,12 +56,19 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 		priceField = new TextField("Price");
 		availFromField = new TextField("Available from");
 		availUntilField = new TextField("Available until");
+		commentArea = new TextArea("Comment");
+		rating = new RatingStars();
 		
-		
+		initStep = new InitWizardStep(optionGroup, priceField, availFromField, availUntilField);
+		locationStep = new LocationWizardStep(optionGroup, addressField, parkingLatLon);
+		imageStep = new ImageUploadWizardStep();
+		commentStep = new CommentRatingWizardStep(commentArea, rating);
 		wizard = new Wizard();
-		wizard.addStep(new InitWizardStep(optionGroup, priceField, availFromField, availUntilField));
-		wizard.addStep(new LocationWizardStep(optionGroup, addressField, parkingLatLon));
-		wizard.addStep(new ImageUploadWizardStep(parkingImage));
+		wizard.addStep(initStep);
+		wizard.addStep(locationStep);
+		wizard.addStep(imageStep);
+		wizard.addStep(commentStep);
+		
 		wizard.addListener(this);
 		
 		
@@ -85,10 +99,16 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 		String availfrom = availFromField.getValue();
 		String availuntil = availUntilField.getValue();
 		
+		//TODO ezeket is használni
+		BufferedImage image = imageStep.getLoadedImage();
+		String comment = commentArea.getValue();
+		float rating = this.rating.getValue().floatValue();
 		
 		ParkingPlace pp = new ParkingPlace(user, lat, lon, address, price, availfrom, availuntil);
 		//pp.addImgRatingComment(..., user);
 		((MyVaadinUI)UI.getCurrent()).getDB().addParkingPlace(pp);
+		
+		
 		endWizard("Parking place added! Have a nice day!");
 	}
 
@@ -101,10 +121,21 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 	private void endWizard(String message){
 		Notification.show(message);
 		
-		//TODO: resetelni a wizardstep-eket
 		navigator.navigateTo("");
 		wizard.back();
 		wizard.back();
+		wizard.back();
+		wizard.back();
+		
+		optionGroup.setValue(optionAddress);
+		addressField.setValue("");
+		priceField.setValue("");
+		availFromField.setValue("");
+		availUntilField.setValue("");
+		commentArea.setValue("");
+		rating.setValue(0.0);
+		locationStep.reset();
+		imageStep.reset();
 	}
 	
 }

@@ -43,6 +43,7 @@ public class ListParkingView extends BaseParkingView{
 		VerticalLayout mainLayout = new VerticalLayout();
 		HorizontalLayout filterLayout = new HorizontalLayout();
 		GridLayout filterFieldLayout = new GridLayout(2,3);
+		filterFieldLayout.setSpacing(true);
 		
 		addressField = new TextField("Address");
 		distanceField = new TextField("Max distance (m)");
@@ -55,7 +56,7 @@ public class ListParkingView extends BaseParkingView{
 		filterFieldLayout.addComponent(priceField, 0, 1);
 		filterFieldLayout.addComponent(availFromField, 0, 2);
 		filterFieldLayout.addComponent(availUntilField, 1, 2);
-		
+		filterFieldLayout.setMargin(true);
 	
 		Button filterButton = new Button("Filter",new ClickListener() {
 			
@@ -78,6 +79,7 @@ public class ListParkingView extends BaseParkingView{
 		mainLayout.addComponent(filterPanel);
 		mainLayout.addComponent(map);
 		mainLayout.setSizeFull();
+		mainLayout.setSpacing(true);
 		
 		midPanel.setContent(mainLayout);
 		
@@ -142,8 +144,8 @@ public class ListParkingView extends BaseParkingView{
 		String infoWindowContent="";
 		
 		GoogleMapInfoWindow infoWindow = new GoogleMapInfoWindow(infoWindowContent, marker);
-		infoWindow.setWidth("200px");
-		infoWindow.setHeight("150px");
+		infoWindow.setWidth("300px");
+		infoWindow.setHeight("200px");
 		
 		try {
 			map.addMarker(marker);
@@ -178,10 +180,36 @@ public class ListParkingView extends BaseParkingView{
 				try {
 					ParkingPlace thispp = ((MyVaadinUI)UI.getCurrent()).getDB().
 							queryAllDataOfOneParkingPlace(idOfParkingPlace, false);
-					String infoWindowContent = "Content: <br/> "
-							+ "ID: "+thispp.getId() + "<br/>" 
-							+ "Address: " + thispp.getAddress() + "<br/>"
-							+ "Added by " + thispp.getUser();
+					
+					String infoWindowContent;
+					String hostUrlString = "http://"+((MyVaadinUI)UI.getCurrent()).getHostUrl()
+							+"#!parkingplace/"+thispp.getId();
+					System.out.println(hostUrlString);
+					
+					if((thispp.getAvailfrom() != null && !"".equals(thispp.getAvailfrom())) &&
+						(thispp.getAvailuntil() != null && !"".equals(thispp.getAvailuntil())))
+					{
+						infoWindowContent = 
+								  "<h3>Parking Place</h3>" 
+								+ "Address: " + thispp.getAddress() + "<br/>"
+								+ "Price: " + thispp.getPrice() + "<br/>"
+								+ "Available: " + thispp.getAvailfrom() +" - "+ thispp.getAvailuntil() + "<br/>"
+								+ "Added by " + thispp.getUser() + "<br/><br/>"
+								+ "<a href=\""+hostUrlString+"\">More information</a>";
+					}else{
+						infoWindowContent = 
+								  "<h3>Parking Place</h3>" 
+								+ "Address: " + thispp.getAddress() + "<br/>"
+								+ "Price: " + thispp.getPrice() + "<br/>"
+								+ "Added by " + thispp.getUser()
+								+ "<br/><br/>"
+								+ "<a href=\""+hostUrlString+"\">More information</a>";
+					}
+					
+							
+							
+							
+						
 					infoWindow.setContent(infoWindowContent);
 				} catch (Exception e) {
 					e.printStackTrace();

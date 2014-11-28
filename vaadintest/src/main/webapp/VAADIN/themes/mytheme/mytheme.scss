@@ -27,9 +27,68 @@
 // For more information, see: https://vaadin.com/book/-/page/themes.valo.html
 // Example variants can be copy/pasted from https://vaadin.com/wiki/-/wiki/Main/Valo+Examples
 
-@import "../valo/valo.scss";
+//@import "../valo/valo.scss";
+@import "../reindeer/reindeer.scss";
 
 @mixin mytheme {
-  @include valo;
+  //@include valo;
+  @include reindeer;
   // Insert your own theme rules here
+  
+  $darkblue:  #001962;
+  $midblue: #0033cc;
+  
+  .v-toppanel {
+  	//padding: 20px;
+  	//background-image: url("img/parking.jpg");
+   	border: 2px solid blue;
+  	border-bottom-right-radius: 15px;
+  	border-bottom-left-radius: 15px;
+  	
+  }
+   .v-toppanel .v-panel-content{
+  	padding: 10px;
+  	background-image: url("img/parking-big.png");
+  	background-repeat: no-repeat;
+  	background-position: 25% 0%
+   	
+  }
+  
+  .v-midpanel {
+   	border: 2px solid blue;
+  	border-radius: 15px;
+  }
+  .v-midpanel .v-panel-content{
+  	padding: 10px;
+  }
+  
+  .v-menubar{
+  	background-color: $midblue;
+  	background-image: none;
+  	border: 1px solid black;
+  	border-radius: 15px;
+  }
+  
+  
+  .v-uploadbox-image{
+  	width: 400px;
+  	height: auto;
+  }
+  
+  .v-comment-layout{
+  	border-top: 1px solid $darkblue;
+  	border-bottom: 1px solid $darkblue;
+  }
+  
+  .v-login-panel{
+	border: 2px solid blue;
+	border-radius: 15px;  	
+  }
+  
+  .v-login-panel .v-layout{
+  	spacing: 5px;
+  	margin: 20px;
+  
+  }
+  
 }

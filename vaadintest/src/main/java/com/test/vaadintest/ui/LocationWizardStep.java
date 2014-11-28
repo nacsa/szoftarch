@@ -79,6 +79,14 @@ public class LocationWizardStep implements WizardStep{
 		bottomMap.setHeight(600, Unit.PIXELS);
 		bottomMap.setWidth(600, Unit.PIXELS);
 		
+		
+
+		bottomMap.setCenter(bpCenter);
+		bottomMap.setZoom(bpZoom);
+		topMap.setCenter(bpCenter);
+		topMap.setZoom(bpZoom);
+		
+		
 		setLocButton = new Button("Set Location");
 		setLocButton.addClickListener(new ClickListener() {
 			@Override
@@ -192,6 +200,16 @@ public class LocationWizardStep implements WizardStep{
 	public boolean onBack() {
 
 		return true;
+	}
+	
+	public void reset(){
+		topMap.clearMarkers();
+		topMap.setCenter(bpCenter);
+		topMap.setZoom(bpZoom);
+		bottomMap.clearMarkers();
+		bottomMap.setCenter(bpCenter);
+		bottomMap.setZoom(bpZoom);
+		setLocCalled = false;
 	}
 
 }
