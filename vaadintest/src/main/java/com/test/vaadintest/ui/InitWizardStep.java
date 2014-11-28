@@ -43,7 +43,8 @@ public class InitWizardStep implements WizardStep{
 	@Override
 	public Component getContent() {
 		VerticalLayout content = new VerticalLayout();
-		
+		content.setSpacing(true);
+		content.setMargin(true);
 		content.addComponent(optionGroup);
 		
 		content.addComponent(priceField);

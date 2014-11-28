@@ -1,9 +1,6 @@
 package com.test.vaadintest.ui;
 
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.swing.text.html.ImageView;
 
 import org.vaadin.teemu.ratingstars.RatingStars;
 
@@ -11,10 +8,6 @@ import com.test.vaadintest.MyVaadinUI;
 import com.test.vaadintest.ParkingPlace;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.server.ExternalResource;
-import com.vaadin.server.FileResource;
-import com.vaadin.server.Resource;
-import com.vaadin.server.ThemeResource;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.tapio.googlemaps.GoogleMap;
 import com.vaadin.tapio.googlemaps.client.LatLon;
@@ -23,7 +16,6 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.TabSheet;
@@ -47,7 +39,6 @@ public class SingleParkingView extends BaseParkingView{
 	UploadBox newUploadBox;
 	
 	TextArea newCommentArea;
-	
 	Button modifyButton;
 	Button saveButton;
 	Button cancelButton;
@@ -225,6 +216,7 @@ public class SingleParkingView extends BaseParkingView{
 		bottomLayout.setSpacing(true);
 		bottomLayout.setSizeFull();
 		
+		
 		bottomLayout.addComponent(getCommentLayout());
 		
 		
@@ -233,6 +225,7 @@ public class SingleParkingView extends BaseParkingView{
 		
 		return tabLayout;
 	}
+	
 	
 	private Layout getTab2(){
 		HorizontalLayout tabLayout = new HorizontalLayout();

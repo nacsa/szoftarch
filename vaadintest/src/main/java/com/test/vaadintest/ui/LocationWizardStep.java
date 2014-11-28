@@ -25,7 +25,6 @@ public class LocationWizardStep implements WizardStep{
 	VerticalLayout content;
 	OptionGroup optionGroup;
 	TextField addressField;
-	Label addressLabel;
 	LatLon outLatLon;
 	LatLon mapLatLon;
 	GoogleMap topMap;
@@ -46,11 +45,10 @@ public class LocationWizardStep implements WizardStep{
 	public LocationWizardStep(OptionGroup optionGroup_, TextField addressField_, LatLon latlon) {
 		VerticalLayout innerTopLayout = new VerticalLayout();
 		VerticalLayout innerBotLayout = new VerticalLayout();
-		HorizontalLayout layout2 = new HorizontalLayout();
 		optionGroup = optionGroup_;
 		content = new VerticalLayout();
+		content.setSpacing(true);
 		this.addressField = addressField_;
-		addressLabel = new Label("Address: ");
 		outLatLon = latlon;
 		mapLatLon = new LatLon();
 		
@@ -58,10 +56,8 @@ public class LocationWizardStep implements WizardStep{
 		setLocCalled = false;
 		
 		
-		layout2.addComponent(addressLabel);
-		layout2.addComponent(addressField);
-		
 		topMap = new GoogleMap(null, null, null);
+		topMap.setCaption("You can click as much as you want, only the last marker will count.");
 		topMap.addMapClickListener(new MapClickListener() {
 			
 			@Override
@@ -76,6 +72,7 @@ public class LocationWizardStep implements WizardStep{
 		topMap.setWidth(600, Unit.PIXELS);
 		
 		bottomMap = new GoogleMap(null,null,null);
+		bottomMap.setCaption("Indicator map");
 		bottomMap.setHeight(600, Unit.PIXELS);
 		bottomMap.setWidth(600, Unit.PIXELS);
 		
@@ -95,11 +92,13 @@ public class LocationWizardStep implements WizardStep{
 			}
 		});
 		
+		innerTopLayout.setSpacing(true);
+		innerTopLayout.setMargin(true);
 		innerTopLayout.addComponent(topMap);
-		innerTopLayout.addComponent(layout2);
+		innerTopLayout.addComponent(addressField);
 		innerTopLayout.addComponent(setLocButton);
 		
-		
+		innerBotLayout.setMargin(true);
 		innerBotLayout.addComponent(bottomMap);
 		
 		content.addComponent(innerTopLayout);
@@ -124,13 +123,11 @@ public class LocationWizardStep implements WizardStep{
 
 		if(optionAddress.equals(value)){
 			addressField.setVisible(true);
-			addressLabel.setVisible(true);
 			
 			topMap.setVisible(false);
 			
 		}else if (optionMap.equals(value)){
 			addressField.setVisible(false);
-			addressLabel.setVisible(false);
 			
 			topMap.setVisible(true);
 			
@@ -139,7 +136,6 @@ public class LocationWizardStep implements WizardStep{
 			
 		}else{ //optionLocation.equals(value)
 			addressField.setVisible(false);
-			addressLabel.setVisible(false);
 			
 			topMap.setVisible(false);
 
