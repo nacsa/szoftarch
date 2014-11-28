@@ -179,7 +179,7 @@ public class ListParkingView extends BaseParkingView{
 				map.openInfoWindow(infoWindow);
 				try {
 					ParkingPlace thispp = ((MyVaadinUI)UI.getCurrent()).getDB().
-							queryAllDataOfOneParkingPlace(idOfParkingPlace, false);
+							queryAllDataOfOneParkingPlace(idOfParkingPlace, true);
 					
 					String infoWindowContent;
 					String hostUrlString = "http://"+((MyVaadinUI)UI.getCurrent()).getHostUrl()

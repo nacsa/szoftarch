@@ -99,13 +99,12 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 		String availfrom = availFromField.getValue();
 		String availuntil = availUntilField.getValue();
 		
-		//TODO ezeket is használni
 		BufferedImage image = imageStep.getLoadedImage();
 		String comment = commentArea.getValue();
-		float rating = this.rating.getValue().floatValue();
+		int rating = this.rating.getValue().intValue();
 		
 		ParkingPlace pp = new ParkingPlace(user, lat, lon, address, price, availfrom, availuntil);
-		//pp.addImgRatingComment(..., user);
+		pp.addImgRatingComment(image, rating, comment, user);
 		((MyVaadinUI)UI.getCurrent()).getDB().addParkingPlace(pp);
 		
 		

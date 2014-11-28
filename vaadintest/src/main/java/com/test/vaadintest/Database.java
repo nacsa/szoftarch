@@ -216,18 +216,18 @@ public class Database {
 			if (pp.availuntil!= null)
 				stmt.setString(7, pp.availuntil);
 			stmt.execute();
+			stmt.close();
 			conn.commit();
 			
 			if (!pp.imgs.isEmpty() || !pp.ratings.isEmpty() || !pp.comments.isEmpty()){
-				String getmaxid = "SELECT MAX(id) FROM parking";
+				String getmaxid = "SELECT MAX(id) AS maxid FROM parking";
 				Statement query = conn.createStatement();
 				ResultSet maxid = query.executeQuery(getmaxid);
+				pp.setId(maxid.getInt("maxid"));
 				conn.close(); //azert hogy lehessen addParkRatinget külön is hívni.
-				pp.setId(maxid.getInt("id"));
 				addParkRating(pp);
 			}
 			
-			stmt.close();
 			if (!conn.isClosed()) conn.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -341,8 +341,10 @@ public class Database {
 	 * @return
 	 */
 	public ParkingPlace queryAllDataOfOneParkingPlace(int id, boolean ratings){
-		String query = "SELECT * FROM parking ";
-		if (ratings) query += " JOIN parkrating ON parking.id = parkrating.id ";
+		String query = "SELECT * FROM parking  ";
+		if (ratings) query += " LEFT OUTER JOIN "
+				+ " (SELECT id AS ratedid, username AS rater, picture, rating, comment FROM parkrating) "
+				+ " ON parking.id = ratedid ";
 		query += " WHERE id = ? ";
 		try {
 			if (conn.isClosed()) connectToDb();
@@ -355,20 +357,18 @@ public class Database {
 					res.getString("address"), res.getFloat("price"), res.getString("availfrom"), res.getString("availuntil"));
 			pp.setId(res.getInt("id"));
 			if (ratings) {
-				res.beforeFirst();
-				while (res.next()) {
-					pp.addImgRatingComment(ImageIO.read(res.getBlob("picture")
-							.getBinaryStream()), res.getInt("rating"), res
-							.getString("comment"), res.getString("username"));
-				}
+				do { //ImageIO.read(res.getBlob("picture").getBinaryStream())-ra not Implemented SQLException 
+					pp.addImgRatingComment(null, res.getInt("rating"), res
+							.getString("comment"), res.getString("rater"));
+				} while (res.next());
 			}
 			conn.close();
 			return pp;
 		} catch (SQLException e) {
 			e.printStackTrace();
-		} catch (IOException e) {
+		}/* catch (IOException e) {
 			e.printStackTrace();
-		}
+		}*/
 		return null;
 	}
 	
