@@ -12,6 +12,7 @@ import com.vaadin.tapio.googlemaps.client.LatLon;
 
 public class LocationUtil {
 	
+	private static final double EARTH_RADIUS = 6372797.0; //m-ben
 	
 	public static LatLon getLatlonFromAddress(String address_){
 		if(address_ == null || "".equals(address_)){
@@ -75,4 +76,17 @@ public class LocationUtil {
 	public static LatLon getLatlonFromLocation(){
 		return new LatLon(0,0);
 	}
+	
+	public static float getLatLonDistance(LatLon place1, LatLon place2){
+		double dlat = (place2.getLat() - place1.getLat()) / 180.0 * Math.PI;
+		double dlon = (place2.getLon() - place1.getLon()) / 180.0 * Math.PI;
+		
+		double a = Math.pow(Math.sin(dlat/2.0), 2.0) + 
+				Math.cos(place1.getLat()/ 180.0 * Math.PI) * Math.cos(place2.getLat()/ 180.0 * Math.PI) * Math.pow(Math.sin(dlon/2.0), 2.0); 
+		
+		double c = 2.0 * Math.atan2(Math.sqrt(a), Math.sqrt(1.0-a));
+		
+		return (float) (EARTH_RADIUS * c);
+	}
+	
 }

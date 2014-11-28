@@ -8,6 +8,8 @@ import org.vaadin.teemu.wizards.WizardStep;
 
 
 
+
+import com.test.vaadintest.FieldUtil;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
@@ -24,18 +26,13 @@ public class InitWizardStep implements WizardStep{
 	TextField availFromField;
 	TextField availUntilField;
 
-	private Pattern pattern;
-	private Matcher matcher;
-	private static final String TIME24HOURS_PATTERN = 
-            "([01]?[0-9]|2[0-3]):[0-5][0-9]";
+	
 	
 	public InitWizardStep(OptionGroup optionGroup, TextField priceField, TextField availFromField, TextField availUntilField) {
 		this.optionGroup = optionGroup;
 		this.priceField = priceField;
 		this.availFromField = availFromField;
 		this.availUntilField = availUntilField;
-		
-        pattern = Pattern.compile(TIME24HOURS_PATTERN);
 	}
 	
 	@Override
@@ -56,12 +53,6 @@ public class InitWizardStep implements WizardStep{
 		return content;
 	}
 
-	public boolean validateTimeFormat(final String time){
-		 
-		  matcher = pattern.matcher(time);
-		  return matcher.matches();
-	  }
-	
 	@Override
 	public boolean onAdvance() {
 		boolean allow = true;
@@ -76,7 +67,7 @@ public class InitWizardStep implements WizardStep{
 			Notification.show("Time interval is not set!");
 		}
 		else {
-			if ( ! validateTimeFormat(availFromField.getValue())){ 
+			if ( ! FieldUtil.validateTimeFormat(availFromField.getValue())){ 
 				Notification.show("Time format should be HH:MM.");
 				allow = false;
 			}
@@ -87,7 +78,7 @@ public class InitWizardStep implements WizardStep{
 			Notification.show("Time interval is not set!");
 		}
 		else {
-			if ( ! validateTimeFormat(availUntilField.getValue())){ 
+			if ( ! FieldUtil.validateTimeFormat(availUntilField.getValue())){ 
 				Notification.show("Time format should be HH:MM.");
 				allow = false;
 			}

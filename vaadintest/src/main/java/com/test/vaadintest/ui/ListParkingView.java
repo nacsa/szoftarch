@@ -3,6 +3,7 @@ package com.test.vaadintest.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.test.vaadintest.FieldUtil;
 import com.test.vaadintest.LocationUtil;
 import com.test.vaadintest.MyVaadinUI;
 import com.test.vaadintest.ParkingPlace;
@@ -17,6 +18,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
@@ -34,7 +36,6 @@ public class ListParkingView extends BaseParkingView{
 	GoogleMap map;
 	
 	private static final float DEFAULT_DISTANCE_VALUE = 500f; //m-ben
-	private static final double EARTH_RADIUS = 6372797.0; //m-ben
 	
 	public ListParkingView(Navigator navigator) {
 		super(navigator);
@@ -44,7 +45,7 @@ public class ListParkingView extends BaseParkingView{
 		GridLayout filterFieldLayout = new GridLayout(2,3);
 		
 		addressField = new TextField("Address");
-		distanceField = new TextField("Max distance");
+		distanceField = new TextField("Max distance (m)");
 		priceField = new TextField("Max price");
 		availFromField = new TextField("Available from (HH:MM)");
 		availUntilField = new TextField("Available until (HH:MM)");
@@ -82,41 +83,33 @@ public class ListParkingView extends BaseParkingView{
 		
 	}
 	
-	private boolean isFieldFilled(TextField field){
-		return field != null && !"".equals(field.getValue());
-	}
-	
 	private void filterParkings(){
 		map.clearMarkers();
 		
-		//TODO fieldeket validálni kell
-		
 		String address = addressField.getValue();
 		String distanceStr = distanceField.getValue();
-		float distance;
-		if(isFieldFilled(distanceField))
-			distance = Float.parseFloat(distanceStr);
-		else 
-			distance = DEFAULT_DISTANCE_VALUE;
-		float maxprice;
-		if (isFieldFilled(priceField))
-			maxprice = Float.parseFloat(priceField.getValue());
+		float distance = DEFAULT_DISTANCE_VALUE;
+		if(FieldUtil.isFieldFilled(distanceField))
+			if (FieldUtil.isPositiveValid(distanceField.getValue()))
+				distance = Float.parseFloat(distanceStr);
+		float maxprice = 0;
+		if (FieldUtil.isFieldFilled(priceField))
+			if (FieldUtil.isPositiveValid(priceField.getValue()))
+				maxprice = Float.parseFloat(priceField.getValue());
+			else Notification.show("Price format is not valid.");
 		else
 			maxprice = 0;
-		String availfrom;
-		if (isFieldFilled(availFromField))
-			availfrom = availFromField.getValue();
-		else
-			availfrom = null;
-		String availuntil;
-		if (isFieldFilled(availUntilField))
-			availuntil = availUntilField.getValue();
-		else
-			availuntil = null;
-		
+		String availfrom = null;
+		if (FieldUtil.isFieldFilled(availFromField))
+			if(FieldUtil.validateTimeFormat(availFromField.getValue()))
+				availfrom = availFromField.getValue();
+		String availuntil = null;
+		if (FieldUtil.isFieldFilled(availUntilField))
+			if(FieldUtil.validateTimeFormat(availFromField.getValue()))
+				availuntil = availUntilField.getValue();		
 		LatLon addresLatlon = null;
 		float distanceInGeoSecs = 0;
-		if (isFieldFilled(addressField)){
+		if (FieldUtil.isFieldFilled(addressField)){
 			addresLatlon = LocationUtil.getLatlonFromAddress(address);
 		}
 		else{
@@ -131,18 +124,15 @@ public class ListParkingView extends BaseParkingView{
 		
 		// ez már éles innentől
 		for(ParkingPlace place : filteredParkings){
-			if(isFieldFilled(addressField)){//ha filterelni kell address szerint
+			if(FieldUtil.isFieldFilled(addressField)){//ha filterelni kell address szerint
 				
-				if(distance > getLatLonDistance(new LatLon(place.getLat(), place.getLon()), addresLatlon)){
+				if(distance > LocationUtil.getLatLonDistance(new LatLon(place.getLat(), place.getLon()), addresLatlon)){
 					addParkingMarkerToMap(place);
 				}
 			}else{
 				addParkingMarkerToMap(place);
 			}
 		}
-		
-		
-		
 	}
 	
 	
@@ -164,19 +154,6 @@ public class ListParkingView extends BaseParkingView{
 			e.printStackTrace();
 		}
 	}
-	
-	private float getLatLonDistance(LatLon place1, LatLon place2){
-		double dlat = (place2.getLat() - place1.getLat()) / 180.0 * Math.PI;
-		double dlon = (place2.getLon() - place1.getLon()) / 180.0 * Math.PI;
-		
-		double a = Math.pow(Math.sin(dlat/2.0), 2.0) + 
-				Math.cos(place1.getLat()/ 180.0 * Math.PI) * Math.cos(place2.getLat()/ 180.0 * Math.PI) * Math.pow(Math.sin(dlon/2.0), 2.0); 
-		
-		double c = 2.0 * Math.atan2(Math.sqrt(a), Math.sqrt(1.0-a));
-		
-		return (float) (EARTH_RADIUS * c);
-	}
-	
 	
 	
 	public class OpenInfoWindowMarkerClickListener implements MarkerClickListener{
@@ -208,11 +185,8 @@ public class ListParkingView extends BaseParkingView{
 					infoWindow.setContent(infoWindowContent);
 				} catch (Exception e) {
 					e.printStackTrace();
-				}
-						
-						
+				}					
 			}
-			
 		}
 		
 	}
