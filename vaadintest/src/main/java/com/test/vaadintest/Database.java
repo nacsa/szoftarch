@@ -1,18 +1,13 @@
 package com.test.vaadintest;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageInputStream;
+
+
 
 import com.vaadin.tapio.googlemaps.client.LatLon;
 
@@ -47,7 +42,7 @@ public class Database {
           String parkrating = "CREATE TABLE IF NOT EXISTS parkrating("
           		+ "id INTEGER NOT NULL,"
           		+ "username CHAR(20) NOT NULL,"
-          		+ "picture BLOB,"
+          		+ "picture TEXT,"
           		+ "rating INT CHECK( rating >=1 AND rating <= 5 ),"
           		+ "comment TEXT,"
           		+ "PRIMARY KEY (id, username),"
@@ -194,6 +189,38 @@ public class Database {
 		}
 	}
 	
+	/**
+	 * Ellenőrzi, hogy Ez a user adott-e már hozzá ehhez a parkolóhoz ratinget
+	 * ha igen visszatér az adatokkal, ha nem akkor nullával.
+	 * A sorrend kötött: picture, rating, comment, ha valamelyik hiányzik, akkor az null
+	 * @param name, id
+	 * @return
+	 */
+	public ArrayList<Object> hasUserRatedThis(int id, String user){
+		String checkis = "SELECT * FROM parkingrating"
+				+ " WHERE id = ? AND username = ? ";
+		if (id == 0 || user == null) return null;
+		try {
+			if (conn.isClosed()) connectToDb();
+			PreparedStatement stmt = conn.prepareStatement(checkis);
+			stmt.setInt(1, id);
+			stmt.setString(2, user);
+			ResultSet result = stmt.executeQuery();
+			
+			if (result.next()){
+				ArrayList<Object> picComRate = new ArrayList<Object>();
+				picComRate.add(result.getString("picture"));
+				picComRate.add(new Integer(result.getInt("rating")));
+				picComRate.add(result.getString("comment"));
+				conn.close();
+				return picComRate;
+			}
+			conn.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
 	public boolean addParkingPlace(ParkingPlace pp){
 		String addpark = "INSERT INTO parking (username, lat, lon, address, price, availfrom, availuntil)"
@@ -240,7 +267,11 @@ public class Database {
 		return true;
 	}
 	
-	//TODO: UNTESTED!!
+	/**
+	 * Warning!! Nem túl logikus, de itt a pp-ből szedjük ki a módosító user nevét.
+	 * @param pp
+	 * @throws Exception
+	 */
 	public void addParkRating(ParkingPlace pp) throws Exception{
 		String addrating = "INSERT INTO parkrating (id, username, picture, rating, comment)"
 				+ "VALUES (?, ?, ?, ?, ?)";
@@ -250,8 +281,7 @@ public class Database {
 		stmt.setInt(1, pp.getId());
 		stmt.setString(2, pp.user);
 		if (pp.imgs.get(0) != null){
-			ImageInputStream img = ImageIO.createImageInputStream(pp.imgs.get(0));
-			stmt.setBlob(3, (InputStream)img);
+			stmt.setString(3, pp.imgs.get(0));
 		}
 		if (pp.ratings.get(0) != null){
 			stmt.setInt(4, pp.ratings.get(0));
@@ -357,8 +387,8 @@ public class Database {
 					res.getString("address"), res.getFloat("price"), res.getString("availfrom"), res.getString("availuntil"));
 			pp.setId(res.getInt("id"));
 			if (ratings) {
-				do { //ImageIO.read(res.getBlob("picture").getBinaryStream())-ra not Implemented SQLException 
-					pp.addImgRatingComment(null, res.getInt("rating"), res
+				do {  
+					pp.addImgRatingComment(res.getString("picture"), res.getInt("rating"), res
 							.getString("comment"), res.getString("rater"));
 				} while (res.next());
 			}
@@ -439,14 +469,40 @@ public class Database {
 	}
 	
 	/**
-	 * Az adatokat a parkolóhely azonosítójával és az értékelő user nevével azonosítjuk.
+	 * Az adatokat a parkolóhely azonosítójával és az értékelő user nevével azonosítjuk. ha valamelyik érték null, akkor azt nem bántja
 	 * @param id
 	 * @param user
-	 * @return
+	 * @return TRUE ha sikerült a módosítás
 	 */
-	public boolean modifyImgRatingCommentOfParkingPlace(ParkingPlace pp){
+	public boolean modifyImgRatingCommentOfParkingPlace(int id, String username, String imgPath, Integer rating, String comment){
 		String update = "UPDATE parkrating SET ";
-		//TODO
+		if (id == 0 || username == null || 
+				(imgPath == null && rating == null && comment == null)) return false;
+		if (imgPath != null) update += " picture = ? , ";
+		if (rating != null) update += " rating = ? , ";
+		if (comment != null) update += " comment = ? , ";
+		update= update.substring(0, update.length() - 2);
+		update += " WHERE id = ? AND username = ? ";
+		
+		try {
+			if (conn.isClosed()) connectToDb();
+			PreparedStatement stmt = conn.prepareStatement(update);
+			
+			int paramcount = 1;
+			if (imgPath != null) { stmt.setString(paramcount, imgPath); paramcount++; }
+			if (rating != null) { stmt.setInt(paramcount, rating.intValue()); paramcount++; }
+			if (comment != null) { stmt.setString(paramcount, comment); paramcount++; }
+			stmt.setInt(paramcount, id);
+			paramcount++;
+			stmt.setString(paramcount, username);
+			
+			if (stmt.executeUpdate() == 0) { conn.close(); return false; }
+			conn.commit();
+			conn.close();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return true;
 	}
 }

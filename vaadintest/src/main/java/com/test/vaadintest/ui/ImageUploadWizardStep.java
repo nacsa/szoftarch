@@ -40,7 +40,6 @@ public class ImageUploadWizardStep implements WizardStep{
 	public BufferedImage getLoadedImage(){
 		if(!uploadBox.isUploadValid())
 			return null;
-		
 		return uploadBox.getUploadedBufferedImage(); 
 		
 	}

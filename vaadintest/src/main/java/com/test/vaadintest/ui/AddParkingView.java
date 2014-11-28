@@ -1,6 +1,5 @@
 package com.test.vaadintest.ui;
 
-import java.awt.image.BufferedImage;
 
 import org.vaadin.teemu.ratingstars.RatingStars;
 import org.vaadin.teemu.wizards.Wizard;
@@ -99,12 +98,12 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 		String availfrom = availFromField.getValue();
 		String availuntil = availUntilField.getValue();
 		
-		BufferedImage image = imageStep.getLoadedImage();
+		String imagepath = null; //TODO: beállítani a feltöltött kép útvonalát
 		String comment = commentArea.getValue();
 		int rating = this.rating.getValue().intValue();
 		
 		ParkingPlace pp = new ParkingPlace(user, lat, lon, address, price, availfrom, availuntil);
-		pp.addImgRatingComment(image, rating, comment, user);
+		pp.addImgRatingComment(imagepath, rating, comment, user);
 		((MyVaadinUI)UI.getCurrent()).getDB().addParkingPlace(pp);
 		
 		

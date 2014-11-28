@@ -2,8 +2,12 @@ package com.test.vaadintest.ui;
 
 
 
+import java.util.Iterator;
+
 import org.vaadin.teemu.ratingstars.RatingStars;
 
+import com.test.vaadintest.FieldUtil;
+import com.test.vaadintest.LocationUtil;
 import com.test.vaadintest.MyVaadinUI;
 import com.test.vaadintest.ParkingPlace;
 import com.vaadin.navigator.Navigator;
@@ -14,6 +18,7 @@ import com.vaadin.tapio.googlemaps.client.LatLon;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -68,7 +73,6 @@ public class SingleParkingView extends BaseParkingView{
 		
 		modifyButton = new Button("Modify");
 		modifyButton.addClickListener(new ClickListener() {
-			
 			@Override
 			public void buttonClick(ClickEvent event) {
 				enableModifying();
@@ -120,14 +124,27 @@ public class SingleParkingView extends BaseParkingView{
 		
 		tmpLabel.setValue("ID should be: " + event.getParameters());
 		
-		//TODO ID alapján DB lekérdezéssel elérjük a szükséges ParkingPlace példányt
-		// ezután feltöltjük a majdani mezőket
-		
-		//TODO true-val kellene csak elszáll
-		currentParkingPlace = ((MyVaadinUI)UI.getCurrent()).getDB().queryAllDataOfOneParkingPlace(parkingPlaceId, false);
+		currentParkingPlace = ((MyVaadinUI)UI.getCurrent()).getDB().queryAllDataOfOneParkingPlace(parkingPlaceId, true);
 		if(currentParkingPlace == null)
-			System.out.println("nyeeeet333");
+			System.out.println("No parking place returned!");
 		setupValidIdView();
+		
+		addressField.setReadOnly(false);
+		priceField.setReadOnly(false);
+		availFromField.setReadOnly(false);
+		availUntilField.setReadOnly(false);
+		
+		addressField.setValue(currentParkingPlace.getAddress());
+		availFromField.setValue(currentParkingPlace.getAvailfrom());
+		availUntilField.setValue(currentParkingPlace.getAvailuntil());
+		priceField.setValue(new Float(currentParkingPlace.getPrice()).toString());
+		
+		addressField.setReadOnly(true);
+		priceField.setReadOnly(true);
+		availFromField.setReadOnly(true);
+		availUntilField.setReadOnly(true);
+		
+		
 	}
 	
 	
@@ -239,7 +256,10 @@ public class SingleParkingView extends BaseParkingView{
 		newCommentArea = new TextArea("Comment");
 		newCommentArea.setWidth("100%");
 		newRating = new RatingStars();
+		//a captionöket lehet el kéne rejteni, de máshogy nem tom hogyan lehet kiszedni őket.
+		newRating.setCaption("Rating");
 		newUploadBox = new UploadBox();
+		newUploadBox.setCaption("Picture");
 		
 		Button uploadButton = new Button("Activate");
 		uploadButton.addClickListener(new ClickListener() {
@@ -265,19 +285,19 @@ public class SingleParkingView extends BaseParkingView{
 		
 		VerticalLayout outerLayout = new VerticalLayout();
 		outerLayout.setSizeFull();
-		//for(){
+		for(int i = 0; i < currentParkingPlace.getRatingusers().size(); i++){
 			HorizontalLayout innerLayout = new HorizontalLayout();
 			innerLayout.setSpacing(true);
 			innerLayout.setMargin(true);
 			innerLayout.setSizeFull();
 			innerLayout.addStyleName("v-comment-layout");
-			Label nameLabel = new Label("<b> name </b>");
+			Label nameLabel = new Label("<b>" + currentParkingPlace.getRatingusers().get(i) +"</b>");
 			nameLabel.setContentMode(ContentMode.HTML);
-			Label commentLabel = new Label("balalalblablabablablbal");
+			Label commentLabel = new Label(currentParkingPlace.getComments().get(i));
 			commentLabel.setContentMode(ContentMode.HTML);
 			
 			RatingStars rating = new RatingStars();
-			rating.setValue(3.0);
+			rating.setValue(currentParkingPlace.getRatings().get(i).doubleValue());
 			rating.setReadOnly(true);
 			
 			innerLayout.addComponent(nameLabel);
@@ -294,19 +314,27 @@ public class SingleParkingView extends BaseParkingView{
 			
 			outerLayout.addComponent(innerLayout);
 		
-		//}
+		}
 		return outerLayout;
 	}
 	
 	
 	private void uploadOtherUserChanges(){
-		
-		
-		
+		ParkingPlace ppRating = new ParkingPlace(((MyVaadinUI)UI.getCurrent()).getLoginedUserName());
+		//TODO: A kép elérési útvonalának hozzáadása
+		//TODO: ha a usernek van már commentje, akkor módosítsunk! DB függvény készen van rá!
+		ppRating.addImgRatingComment(null, newRating.getValue().intValue(), newCommentArea.getValue(), ppRating.getUser()); 
+		try {
+			ppRating.setId(currentParkingPlace.getId());
+			((MyVaadinUI)UI.getCurrent()).getDB().addParkRating(ppRating);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
-	
+	//TODO: ha a usernek van már kommentje, akkor azt jelenítsük meg a Tabon módosításra
+	//erre csináltam függgvényt: hasUserRatedThis -> olvasd el a kommentjét + castolgasd át őket a sorrend szerint ha nem nullák.
 	private void enableModifying(){
 		addressField.setReadOnly(false);
 		priceField.setReadOnly(false);
@@ -325,9 +353,26 @@ public class SingleParkingView extends BaseParkingView{
 	
 	
 	private void saveFieldValues(){
-		
-		//TODO update-elni a currentParkParking adatait!!! Field valuek alapján
-		
+
+		//TODO FIELD VALIDATION!
+		String newaddress = null;
+		float newlat = 0;
+		float newlon = 0;
+		if (FieldUtil.isFieldFilled(addressField)){
+			newaddress = addressField.getValue();
+			LatLon newlatlon = LocationUtil.getLatlonFromAddress(newaddress);
+			newlat = (float) newlatlon.getLat();
+			newlon = (float) newlatlon.getLon();
+		}
+		ParkingPlace modified = new ParkingPlace(currentParkingPlace.getUser(), newlat, newlon, newaddress, 
+				Float.parseFloat(priceField.getValue()), availFromField.getValue(), availUntilField.getValue());
+		try {
+			modified.setId(currentParkingPlace.getId());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		//TODO: saját képét módosítja: DB.modifiyImageRatingCommentOfParkingPlace(id, user, imgPath, rating, comment);
+		((MyVaadinUI) UI.getCurrent()).getDB().modifyDataOfParkingPlace(modified);
 		setunmodified();
 	}
 	

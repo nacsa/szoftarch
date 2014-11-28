@@ -25,7 +25,7 @@ public class ParkingPlace {
 		return availuntil;
 	}
 
-	public ArrayList<BufferedImage> getImgs() {
+	public ArrayList<String> getImgs() {
 		return imgs;
 	}
 
@@ -52,7 +52,7 @@ public class ParkingPlace {
 	//azért legyenek vektorok, mert ha listázni akarjuk egy parkolóról az összeset valamelyikből,
 	//akkor azt felvehessük egy ParkingPlace objektumba. De amikor hozzáadunk egy új parkolót és adunk meg képet/ratinget/kommentet, 
 	//akkor mindegyikből csak egyet adhatunk meg. 
-	ArrayList<BufferedImage> imgs = new ArrayList<BufferedImage>();
+	ArrayList<String> imgs = new ArrayList<String>();
 	ArrayList<Integer> ratings = new ArrayList<Integer>();
 	ArrayList<String> comments = new ArrayList<String>();
 	ArrayList<String> ratingusers = new ArrayList<String>();
@@ -71,7 +71,6 @@ public class ParkingPlace {
 		this.id = 0;
 	}
 	
-	//TODO: több konstruktor, hogy ne kelljen minden paramétert megadni. Pl.: ha csak a cím van meg, a GoogleMapstól lekérhetné a GPS-t
 	public ParkingPlace(String user, float lat, float lon, String address, float price, String availfrom, String availuntil) {
 		super();
 		this.user = user;
@@ -105,11 +104,11 @@ public class ParkingPlace {
 	
 	/**
 	 * Mindegyik paraméter lehet null is.
-	 * @param img
+	 * @param img A kép elérési útvonala
 	 * @param rating
 	 * @param comment
 	 */
-	public void addImgRatingComment(BufferedImage img, Integer rating, String comment, String user){
+	public void addImgRatingComment(String img, Integer rating, String comment, String user){
 		imgs.add(img);
 		ratings.add(rating);
 		comments.add(comment);
