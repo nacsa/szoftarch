@@ -6,6 +6,7 @@ import java.util.List;
 import com.test.vaadintest.FieldUtil;
 import com.test.vaadintest.LocationUtil;
 import com.test.vaadintest.MyVaadinUI;
+import com.test.vaadintest.ParkingNotification;
 import com.test.vaadintest.ParkingPlace;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.tapio.googlemaps.GoogleMap;
@@ -30,8 +31,8 @@ public class ListParkingView extends BaseParkingView{
 	TextField addressField;
 	TextField distanceField;
 	TextField priceField;
-	TextField availFromField;
-	TextField availUntilField;
+	TimeSelecter availFromField;
+	TimeSelecter availUntilField;
 	
 	GoogleMap map;
 	
@@ -48,8 +49,8 @@ public class ListParkingView extends BaseParkingView{
 		addressField = new TextField("Address");
 		distanceField = new TextField("Max distance (m)");
 		priceField = new TextField("Max price");
-		availFromField = new TextField("Available from (HH:MM)");
-		availUntilField = new TextField("Available until (HH:MM)");
+		availFromField = new TimeSelecter("Available from (HH:MM)");
+		availUntilField = new TimeSelecter("Available until (HH:MM)");
 		
 		filterFieldLayout.addComponent(addressField, 0, 0);
 		filterFieldLayout.addComponent(distanceField, 1, 0);
@@ -98,7 +99,8 @@ public class ListParkingView extends BaseParkingView{
 		if (FieldUtil.isFieldFilled(priceField))
 			if (FieldUtil.isPositiveValid(priceField.getValue()))
 				maxprice = Float.parseFloat(priceField.getValue());
-			else Notification.show("Price format is not valid.");
+			else 
+				ParkingNotification.show("Price format is not valid.");
 		else
 			maxprice = 0;
 		String availfrom = null;

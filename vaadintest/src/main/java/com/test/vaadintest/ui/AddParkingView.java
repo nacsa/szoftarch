@@ -10,10 +10,13 @@ import org.vaadin.teemu.wizards.event.WizardStepActivationEvent;
 import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 
 import com.test.vaadintest.MyVaadinUI;
+import com.test.vaadintest.ParkingNotification;
 import com.test.vaadintest.ParkingPlace;
 import com.vaadin.navigator.Navigator;
+import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.tapio.googlemaps.client.LatLon;
-import com.vaadin.ui.Notification;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
@@ -23,8 +26,8 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 
 	TextField addressField;
 	TextField priceField;
-	TextField availFromField;
-	TextField availUntilField;
+	TimeSelecter availFromField;
+	TimeSelecter availUntilField;
 	LatLon parkingLatLon;
 	OptionGroup optionGroup;
 	TextArea commentArea;
@@ -53,8 +56,8 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 	
 		addressField = new TextField("Address");
 		priceField = new TextField("Price");
-		availFromField = new TextField("Available from");
-		availUntilField = new TextField("Available until");
+		availFromField = new TimeSelecter("Available from");
+		availUntilField = new TimeSelecter("Available until");
 		commentArea = new TextArea("Comment");
 		rating = new RatingStars();
 		
@@ -70,13 +73,24 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 		
 		wizard.addListener(this);
 		
-		
-		midPanel.setContent(wizard);
+		navigateAfterLogout = true;
 				
 	}
 	
 	
-	
+	@Override
+	public void enter(ViewChangeEvent event) {
+		super.enter(event);
+		if(((MyVaadinUI)UI.getCurrent()).getLoginedUserName() == null){
+			Label label = new Label("<h3>Only logged in users can use this function</h3>");
+			label.setContentMode(ContentMode.HTML);
+			midPanel.setContent(label);
+		}else{
+			midPanel.setContent(wizard);
+		}
+		
+		
+	}
 
 	@Override
 	public void activeStepChanged(WizardStepActivationEvent event) {
@@ -98,7 +112,7 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 		String availfrom = availFromField.getValue();
 		String availuntil = availUntilField.getValue();
 		
-		String imagepath = null; //TODO: beállítani a feltöltött kép útvonalát
+		String imagepath = imageStep.getUploadedImagePath(); 
 		String comment = commentArea.getValue();
 		int rating = this.rating.getValue().intValue();
 		
@@ -117,7 +131,7 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 	
 	
 	private void endWizard(String message){
-		Notification.show(message);
+		ParkingNotification.show(message);
 		
 		navigator.navigateTo("");
 		wizard.back();

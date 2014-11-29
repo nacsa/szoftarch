@@ -4,6 +4,7 @@ import org.w3c.dom.UserDataHandler;
 
 import com.test.vaadintest.LoginUtil;
 import com.test.vaadintest.MyVaadinUI;
+import com.test.vaadintest.ParkingNotification;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -73,13 +74,13 @@ public class LoginView extends VerticalLayout implements View{
 		boolean success = LoginUtil.successfulLogin(name, password);
 		
 		if(success){
-			Notification.show("Succesfull login! " + name);
+			ParkingNotification.show("Succesfull login! " + name);
 			((MyVaadinUI)UI.getCurrent()).setLoginedUserName(name);
 			navigator.navigateTo("");
 			
 			//plusz elnavigálunk
 		}else{
-			Notification.show("Login failed! Invalid login name or password");
+			ParkingNotification.show("Login failed! Invalid login name or password");
 		}
 	}
 	

@@ -2,6 +2,7 @@ package com.test.vaadintest.ui;
 
 import com.test.vaadintest.LoginUtil;
 import com.test.vaadintest.MyVaadinUI;
+import com.test.vaadintest.ParkingNotification;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -70,35 +71,36 @@ public class RegistrationView extends VerticalLayout implements View{
 	
 	public void regist(String name, String password, String repeatPassword){
 		if(name == null || "".equals(name)){
-			Notification.show("User name is empty. Please give one!");
+			ParkingNotification.show("User name is empty. Please give one!");
 			nameField.focus();
 			return;
 		}
 		if(LoginUtil.isUserNameAlreadyTaken(name)){
-			Notification.show("Sorry, username ("+name+") already taken.");
+			ParkingNotification.show("Sorry, username ("+name+") already taken.");
 			nameField.focus();
 			return;
 		}
 		
 		if(password == null || "".equals(password)){
-			Notification.show("Password field is empty. Please give a password!");
+			ParkingNotification.show("Password field is empty. Please give a password!");
 			resetAndFocusPassword();
 			return;
 		}
 		
 		if(!password.equals(repeatPassword)){
-			Notification.show("Password reapeat failed. Try again!");
+			ParkingNotification.show("Password reapeat failed. Try again!");
 			resetAndFocusPassword();
 			return;
 		}
 		
 		if (((MyVaadinUI)UI.getCurrent()).getDB().addUser(name, password))
 			{
-				Notification.show("Successfull registration!");
+				ParkingNotification.show("Successfull registration!");
 				//login after registration
 				((MyVaadinUI)UI.getCurrent()).setLoginedUserName(name);
 			}
-		else Notification.show("Registration failed!");
+		else 
+			ParkingNotification.show("Registration failed!");
 		
 		navigator.navigateTo("");
 		

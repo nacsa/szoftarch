@@ -1,8 +1,5 @@
 package com.test.vaadintest;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-
 import javax.servlet.annotation.WebServlet;
 
 import com.test.vaadintest.ui.AddParkingView;
@@ -17,14 +14,6 @@ import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
-import com.vaadin.tapio.googlemaps.GoogleMap;
-import com.vaadin.tapio.googlemaps.client.LatLon;
-import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapMarker;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
@@ -38,7 +27,6 @@ public class MyVaadinUI extends UI
 
     private String hostUrl;
 	private Database db;
-	private Map map;
 	private String loginedUserName;
 	
 

@@ -3,6 +3,7 @@ package com.test.vaadintest.ui;
 import org.vaadin.teemu.wizards.WizardStep;
 
 import com.test.vaadintest.LocationUtil;
+import com.test.vaadintest.ParkingNotification;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.Sizeable.Unit;
@@ -187,7 +188,7 @@ public class LocationWizardStep implements WizardStep{
 	@Override
 	public boolean onAdvance() {
 		if(!setLocCalled){
-			Notification.show("The location is not set!");
+			ParkingNotification.show("The location is not set!");
 		}
 		return setLocCalled;
 	}

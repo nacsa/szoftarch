@@ -3,6 +3,7 @@ package com.test.vaadintest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.test.vaadintest.ui.TimeSelecter;
 import com.vaadin.ui.TextField;
 
 public class FieldUtil {
@@ -16,6 +17,10 @@ public class FieldUtil {
 	
 	public static boolean isFieldFilled(TextField field){
 		return field != null && !"".equals(field.getValue());
+	}
+	
+	public static boolean isFieldFilled(TimeSelecter field){
+		return field != null && field.getValue() != null;
 	}
 	
 	public static boolean validateTimeFormat(final String time){

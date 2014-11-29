@@ -1,25 +1,22 @@
 package com.test.vaadintest.ui;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.nio.file.FileSystem;
 
-import javax.imageio.ImageIO;
+import javax.activation.MimeType;
 
-import com.vaadin.server.StreamResource;
-import com.vaadin.server.StreamResource.StreamSource;
+import com.test.vaadintest.ParkingNotification;
+import com.vaadin.server.FileResource;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.FailedListener;
-import com.vaadin.ui.Upload.ProgressListener;
 import com.vaadin.ui.Upload.Receiver;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.Upload.SucceededListener;
@@ -35,10 +32,11 @@ class UploadBox extends CustomComponent
     ByteArrayOutputStream os =
         new ByteArrayOutputStream(10240);
 
-    // Name of the uploaded file
-    String filename;
+    public final static String UPLOADED_DIR_NAME = "img"+File.separator+"uploaded"+File.separator;
     
-    //ProgressBar progress = new ProgressBar(0.0f);
+    // Name of the uploaded file
+    String uploadedFileName;
+    File file;
     
     // Show uploaded file in this placeholder
     Image image = new Image("Uploaded Image");
@@ -46,22 +44,25 @@ class UploadBox extends CustomComponent
     boolean validUpload;
     
     public UploadBox() {
+    	File uploads = new File(UPLOADED_DIR_NAME);
+        if (!uploads.exists())
+        	 uploads.mkdirs();
+    	
         // Create the upload component and handle all its events
         Upload upload = new Upload("Upload the image here", null);
         upload.setReceiver(this);
-       // upload.addProgressListener(this);
+        
         upload.addFailedListener(this);
         upload.addSucceededListener(this);
         
         // Put the upload and image display in a panel
         Panel panel = new Panel("Parking place image");
-        //panel.setWidth("400px");
         panel.setSizeFull();
         VerticalLayout panelContent = new VerticalLayout();
         panelContent.setSpacing(true);
         panel.setContent(panelContent);
         panelContent.addComponent(upload);
-        //panelContent.addComponent(progress);
+
         panelContent.addComponent(image);
         
         //progress.setVisible(false);
@@ -72,53 +73,33 @@ class UploadBox extends CustomComponent
     }            
     
     public OutputStream receiveUpload(String filename, String mimeType) {
-        this.filename = filename;
-        os.reset(); // Needed to allow re-uploading
-        return os;
+        
+        FileOutputStream fos = null;
+    	
+        try {
+        	
+        	file = new File(UploadBox.UPLOADED_DIR_NAME+generateFileName(mimeType));
+        	
+            fos = new FileOutputStream(file);
+        } catch (final java.io.FileNotFoundException e) {
+            
+            return null;
+        }
+        return fos; // Return the output stream to write to
     }
 
-    /*
-    @Override
-    public void updateProgress(long readBytes, long contentLength) {
-        progress.setVisible(true);
-        if (contentLength == -1)
-            progress.setIndeterminate(true);
-        else {
-            progress.setIndeterminate(false);
-            progress.setValue(((float)readBytes) /
-                              ((float)contentLength));
-        }
+    // Generate file name
+    private String generateFileName(String mimeType){
+    	uploadedFileName = System.currentTimeMillis()+"."+mimeType.split("/")[1];
+    	return uploadedFileName;
     }
-    */
 
     public void uploadSucceeded(SucceededEvent event) {
-        image.setVisible(true);
-        
 
-        image.addStyleName("v-uploadbox-image");
-        
-       // image.setCaption("Uploaded Image " + filename +
-       //         " has length " + os.toByteArray().length);
-        
-        // Display the image as a stream resource from
-        // the memory buffer
-        StreamSource source = new StreamSource() {
-            private static final long serialVersionUID = -4905654404647215809L;
-
-            public InputStream getStream() {
-                return new ByteArrayInputStream(os.toByteArray());
-            }
-        };
-        
-        if (image.getSource() == null)
-            // Create a new stream resource
-            image.setSource(new StreamResource(source, filename));
-        else { // Reuse the old resource
-            StreamResource resource =
-                    (StreamResource) image.getSource();
-            resource.setStreamSource(source);
-            resource.setFilename(filename);
-        }
+        image.setSource(new FileResource(file));
+    	
+    	image.setVisible(true);
+    	image.addStyleName("v-uploadbox-image");
 
         image.markAsDirty();
         validUpload = true;
@@ -126,31 +107,23 @@ class UploadBox extends CustomComponent
 
     @Override
     public void uploadFailed(FailedEvent event) {
-        Notification.show("Upload failed",
-                          Notification.Type.ERROR_MESSAGE);
-        validUpload = false;
+    	if(!("image/jpeg".equals(event.getMIMEType()) 
+    			||"image/png".equals(event.getMIMEType())))
+    	{
+            ParkingNotification.show("Upload failed - Only upload jpg or png images");
+    	}else{
+            ParkingNotification.show("Upload failed");
+    	}
+    	
+    	validUpload = false;
     }
     
     public boolean isUploadValid(){
     	return validUpload;
     }
     
-    public BufferedImage getUploadedBufferedImage() {
-    	byte[]imageInByte = os.toByteArray();
-		
-    	InputStream in = new ByteArrayInputStream(imageInByte);
-		BufferedImage bImage;
-    	
-    	try{
-		// convert byte array back to BufferedImage
-    		bImage = ImageIO.read(in);
-    	}catch(Exception e){
-    		return null;
-    	}
-    	
-    	return bImage;
-    	
+    public String getUploadedImagePath() {
+    	return UPLOADED_DIR_NAME + uploadedFileName;
     }
 }
-///eddig
 

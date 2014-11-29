@@ -1,7 +1,5 @@
 package com.test.vaadintest.ui;
 
-import java.awt.image.BufferedImage;
-
 import org.vaadin.teemu.wizards.WizardStep;
 
 import com.vaadin.ui.Component;
@@ -37,10 +35,10 @@ public class ImageUploadWizardStep implements WizardStep{
 		return true;
 	}
 	
-	public BufferedImage getLoadedImage(){
+	public String getUploadedImagePath(){
 		if(!uploadBox.isUploadValid())
 			return null;
-		return uploadBox.getUploadedBufferedImage(); 
+		return uploadBox.getUploadedImagePath(); 
 		
 	}
 	

@@ -1,6 +1,7 @@
 package com.test.vaadintest.ui;
 
 import com.test.vaadintest.MyVaadinUI;
+import com.test.vaadintest.ParkingNotification;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -8,7 +9,6 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.MenuItem;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -122,7 +122,7 @@ public class BaseParkingView extends VerticalLayout implements View{
 			return;
 		
 		((MyVaadinUI)UI.getCurrent()).setLoginedUserName(null);
-		Notification.show("Successfull logout!");
+		ParkingNotification.show("Successfull logout!");
 		
 		
 		userBar.removeItems();

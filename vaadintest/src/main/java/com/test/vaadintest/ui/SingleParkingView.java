@@ -1,34 +1,38 @@
 package com.test.vaadintest.ui;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
-
-import java.util.Iterator;
-
+import org.vaadin.peter.imagestrip.ImageStrip;
 import org.vaadin.teemu.ratingstars.RatingStars;
 
 import com.test.vaadintest.FieldUtil;
 import com.test.vaadintest.LocationUtil;
 import com.test.vaadintest.MyVaadinUI;
+import com.test.vaadintest.ParkingNotification;
 import com.test.vaadintest.ParkingPlace;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.server.FileResource;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.tapio.googlemaps.GoogleMap;
 import com.vaadin.tapio.googlemaps.client.LatLon;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
 
 public class SingleParkingView extends BaseParkingView{
 
@@ -37,8 +41,8 @@ public class SingleParkingView extends BaseParkingView{
 	
 	TextField addressField;
 	TextField priceField;
-	TextField availFromField;
-	TextField availUntilField;
+	TimeSelecter availFromField;
+	TimeSelecter availUntilField;
 	GoogleMap map;
 	RatingStars newRating;
 	UploadBox newUploadBox;
@@ -67,8 +71,8 @@ public class SingleParkingView extends BaseParkingView{
 		
 		addressField = new TextField("Address");
 		priceField = new TextField("Price (Ft)");
-		availFromField = new TextField("Available from");
-		availUntilField = new TextField("Available until");
+		availFromField = new TimeSelecter("Available from");
+		availUntilField = new TimeSelecter("Available until");
 		addressField = new TextField("Address");
 		
 		modifyButton = new Button("Modify");
@@ -127,23 +131,7 @@ public class SingleParkingView extends BaseParkingView{
 		currentParkingPlace = ((MyVaadinUI)UI.getCurrent()).getDB().queryAllDataOfOneParkingPlace(parkingPlaceId, true);
 		if(currentParkingPlace == null)
 			System.out.println("No parking place returned!");
-		setupValidIdView();
-		
-		addressField.setReadOnly(false);
-		priceField.setReadOnly(false);
-		availFromField.setReadOnly(false);
-		availUntilField.setReadOnly(false);
-		
-		addressField.setValue(currentParkingPlace.getAddress());
-		availFromField.setValue(currentParkingPlace.getAvailfrom());
-		availUntilField.setValue(currentParkingPlace.getAvailuntil());
-		priceField.setValue(new Float(currentParkingPlace.getPrice()).toString());
-		
-		addressField.setReadOnly(true);
-		priceField.setReadOnly(true);
-		availFromField.setReadOnly(true);
-		availUntilField.setReadOnly(true);
-		
+		setupValidIdView();		
 		
 	}
 	
@@ -188,6 +176,16 @@ public class SingleParkingView extends BaseParkingView{
 		filterFieldLayout.setSpacing(true);
 		filterFieldLayout.setMargin(true);
 		
+		addressField.setReadOnly(false);
+		priceField.setReadOnly(false);
+		availFromField.setReadOnly(false);
+		availUntilField.setReadOnly(false);
+		
+		addressField.setValue(currentParkingPlace.getAddress());
+		availFromField.setValue(currentParkingPlace.getAvailfrom());
+		availUntilField.setValue(currentParkingPlace.getAvailuntil());
+		priceField.setValue(currentParkingPlace.getPrice()+"");
+		
 		addressField.setReadOnly(true);
 		priceField.setReadOnly(true);
 		availFromField.setReadOnly(true);
@@ -200,9 +198,7 @@ public class SingleParkingView extends BaseParkingView{
 		}else{
 			modifyButton.setVisible(false);
 		}
-		
-		
-		
+				
 		
 		filterFieldLayout.addComponent(addressField, 0, 0);
 		filterFieldLayout.addComponent(priceField, 1, 0);
@@ -228,12 +224,12 @@ public class SingleParkingView extends BaseParkingView{
 		
 		
 		topLayout.addComponent(buttonLayout);
-		
+		topLayout.addComponent(getParkingImageStrip());
 		VerticalLayout bottomLayout = new VerticalLayout();
 		bottomLayout.setSpacing(true);
 		bottomLayout.setSizeFull();
 		
-		
+		//bottomLayout.addComponent(getParkingImageStrip());
 		bottomLayout.addComponent(getCommentLayout());
 		
 		
@@ -261,12 +257,13 @@ public class SingleParkingView extends BaseParkingView{
 		newUploadBox = new UploadBox();
 		newUploadBox.setCaption("Picture");
 		
-		Button uploadButton = new Button("Activate");
+		Button uploadButton = new Button("Send");
 		uploadButton.addClickListener(new ClickListener() {
 			
 			@Override
 			public void buttonClick(ClickEvent event) {
 				uploadOtherUserChanges();
+				navigator.navigateTo(navigator.getState());
 			}
 		});
 		leftTabLayout.addComponent(newCommentArea);
@@ -280,6 +277,59 @@ public class SingleParkingView extends BaseParkingView{
 		return tabLayout;
 	}
 	
+	/*
+	private ImageViewer getParkingImageViewer(){
+		ImageViewer imageViewer = new ImageViewer();
+		List<FileResource> list = new ArrayList<FileResource>();
+		for(String imagePath : currentParkingPlace.getImgs()){
+			File file = new File(imagePath);
+			
+			list.add(new FileResource(file));
+			list.add(new FileResource(file));
+			list.add(new FileResource(file));
+			list.add(new FileResource(file));
+			list.add(new FileResource(file));
+		}
+		if(list.isEmpty())
+			imageViewer.setVisible(false);
+		
+		return imageViewer;
+		
+	}*/
+	
+	private ImageStrip getParkingImageStrip(){
+		ImageStrip imageStrip = new ImageStrip(org.vaadin.peter.imagestrip.ImageStrip.Alignment.VERTICAL);
+		imageStrip.setAnimated(true);
+		
+		 imageStrip.setImageBoxWidth(200);
+	        imageStrip.setImageBoxHeight(200);
+
+	        // Set maximum size of the images
+	        imageStrip.setImageMaxWidth(200);
+	        imageStrip.setImageMaxHeight(200);
+		imageStrip.setWidth("220px");
+		//imageStrip.setHeight("220px");
+		List<String> validPaths= new ArrayList<String>();
+		for(String imagePath : currentParkingPlace.getImgs()){
+			if(imagePath!=null && !"".equals(imagePath))
+				validPaths.add(imagePath);
+		}
+		
+		for(String imagePath : validPaths){
+			File file = new File(imagePath);
+			imageStrip.addImage(new FileResource(file));
+			imageStrip.addImage(new FileResource(file));
+			imageStrip.addImage(new FileResource(file));
+			imageStrip.addImage(new FileResource(file));
+			imageStrip.addImage(new FileResource(file));
+			imageStrip.addImage(new FileResource(file));
+		}
+		
+		if(validPaths.isEmpty())
+			imageStrip.setVisible(false);
+		
+		return imageStrip;
+	}
 	
 	private Layout getCommentLayout(){
 		
@@ -320,21 +370,33 @@ public class SingleParkingView extends BaseParkingView{
 	
 	
 	private void uploadOtherUserChanges(){
+		if(((MyVaadinUI)UI.getCurrent()).getLoginedUserName() == null)
+		{
+			ParkingNotification.show("You should be logged in to do that!");
+			return;
+		}
+		
+		
 		ParkingPlace ppRating = new ParkingPlace(((MyVaadinUI)UI.getCurrent()).getLoginedUserName());
-		//TODO: A kép elérési útvonalának hozzáadása
-		//TODO: ha a usernek van már commentje, akkor módosítsunk! DB függvény készen van rá!
-		ppRating.addImgRatingComment(null, newRating.getValue().intValue(), newCommentArea.getValue(), ppRating.getUser()); 
+	
+		//TODO: Ennek kellene így menni nem? 
+		ppRating.addImgRatingComment(newUploadBox.getUploadedImagePath(), newRating.getValue().intValue(), newCommentArea.getValue(), ppRating.getUser()); 
 		try {
 			ppRating.setId(currentParkingPlace.getId());
 			((MyVaadinUI)UI.getCurrent()).getDB().addParkRating(ppRating);
 		} catch (Exception e) {
-			e.printStackTrace();
+			try{
+			((MyVaadinUI)UI.getCurrent()).getDB().modifyImgRatingCommentOfParkingPlace(ppRating.getId(), ppRating.getUser(),
+																		newUploadBox.getUploadedImagePath(), newRating.getValue().intValue(), newCommentArea.getValue());
+			}catch(Exception ex){
+				//TODO majd kiszedni
+				ex.printStackTrace();
+			}
 		}
 	}
 	
 	
-	//TODO: ha a usernek van már kommentje, akkor azt jelenítsük meg a Tabon módosításra
-	//erre csináltam függgvényt: hasUserRatedThis -> olvasd el a kommentjét + castolgasd át őket a sorrend szerint ha nem nullák.
+	//TODO: nem nem azt majd másik tabon 
 	private void enableModifying(){
 		addressField.setReadOnly(false);
 		priceField.setReadOnly(false);
