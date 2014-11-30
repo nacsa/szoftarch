@@ -1,7 +1,6 @@
 package com.test.vaadintest.ui;
 
 import com.test.vaadintest.businesslogic.FieldUtil;
-import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;

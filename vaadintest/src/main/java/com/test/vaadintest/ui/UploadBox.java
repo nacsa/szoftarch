@@ -4,14 +4,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.nio.file.FileSystem;
-
-import javax.activation.MimeType;
 
 import com.vaadin.server.FileResource;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Image;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;

@@ -1,13 +1,11 @@
 package com.test.vaadintest.ui;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.test.vaadintest.MyVaadinUI;
 import com.test.vaadintest.ParkingPlace;
 import com.test.vaadintest.businesslogic.BusinessLogic;
 import com.test.vaadintest.businesslogic.FieldUtil;
-import com.test.vaadintest.businesslogic.LocationUtil;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.tapio.googlemaps.GoogleMap;
@@ -17,14 +15,13 @@ import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapInfoWindow;
 import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapMarker;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.VerticalLayout;
 
 public class ListParkingView extends BaseParkingView{

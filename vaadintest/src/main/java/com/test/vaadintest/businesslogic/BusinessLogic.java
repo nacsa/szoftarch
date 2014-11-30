@@ -69,8 +69,6 @@ public class BusinessLogic {
 		 * hogy nem kell túl sok adatbázisból visszaadott ParkingPlace-szel számolnunk.  
 		 */
 
-		
-	
 		ArrayList <ParkingPlace> estimatedFiltered = db.queryParkingPlace(addresLatlon, distanceInGeoSecs, maxprice, from, until);
 		ArrayList<ParkingPlace> exactFiltered = new ArrayList<ParkingPlace>();
 		

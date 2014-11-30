@@ -11,15 +11,12 @@ import com.vaadin.tapio.googlemaps.GoogleMap;
 import com.vaadin.tapio.googlemaps.client.LatLon;
 import com.vaadin.tapio.googlemaps.client.events.MapClickListener;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
 
 public class LocationWizardStep implements WizardStep{
 
@@ -39,8 +36,6 @@ public class LocationWizardStep implements WizardStep{
 	
 	
 	private static String optionAddress = "Use Address";
-	private static String optionMap = "Use Map";
-	private static String optionLocation = "Use Location";
 	
 	
 	public LocationWizardStep(OptionGroup optionGroup_, TextField addressField_, LatLon latlon) {

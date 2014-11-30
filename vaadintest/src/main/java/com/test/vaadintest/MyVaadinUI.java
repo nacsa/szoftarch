@@ -60,18 +60,7 @@ public class MyVaadinUI extends UI
         SingleParkingView singleParkingView = new SingleParkingView(navigator);
         navigator.addView(singleParkingView.getName(), singleParkingView);
         
-        //nemjó
-        if(request.getParameter("mobile")!=null){
-        	System.out.println("mobile" + request.getParameter("mobile"));
-        }
-        
-        //ez faja
-        if(getPage().getWebBrowser().isTouchDevice()){
-        	System.out.println("touchdevice");
-        }
-        
         final VerticalLayout layout = new VerticalLayout();
-        //final HorizontalLayout layout = new HorizontalLayoutLayout();
         
         layout.setMargin(true);
         setContent(layout);

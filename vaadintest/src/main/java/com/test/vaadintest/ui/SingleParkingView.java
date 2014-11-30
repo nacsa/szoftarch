@@ -26,8 +26,6 @@ import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
@@ -306,26 +304,6 @@ public class SingleParkingView extends BaseParkingView{
 		return tabLayout;
 	}
 	
-	/*
-	private ImageViewer getParkingImageViewer(){
-		ImageViewer imageViewer = new ImageViewer();
-		List<FileResource> list = new ArrayList<FileResource>();
-		for(String imagePath : currentParkingPlace.getImgs()){
-			File file = new File(imagePath);
-			
-			list.add(new FileResource(file));
-			list.add(new FileResource(file));
-			list.add(new FileResource(file));
-			list.add(new FileResource(file));
-			list.add(new FileResource(file));
-		}
-		if(list.isEmpty())
-			imageViewer.setVisible(false);
-		
-		return imageViewer;
-		
-	}*/
-	
 	private ImageStrip getParkingImageStrip(){
 		ImageStrip imageStrip = new ImageStrip(org.vaadin.peter.imagestrip.ImageStrip.Alignment.VERTICAL);
 		imageStrip.setAnimated(true);
@@ -337,7 +315,6 @@ public class SingleParkingView extends BaseParkingView{
 	        imageStrip.setImageMaxWidth(200);
 	        imageStrip.setImageMaxHeight(200);
 		imageStrip.setWidth("220px");
-		//imageStrip.setHeight("220px");
 		List<String> validPaths= new ArrayList<String>();
 		for(String imagePath : currentParkingPlace.getImgs()){
 			if(imagePath!=null && !"".equals(imagePath))
@@ -346,11 +323,6 @@ public class SingleParkingView extends BaseParkingView{
 		
 		for(String imagePath : validPaths){
 			File file = new File(imagePath);
-			imageStrip.addImage(new FileResource(file));
-			imageStrip.addImage(new FileResource(file));
-			imageStrip.addImage(new FileResource(file));
-			imageStrip.addImage(new FileResource(file));
-			imageStrip.addImage(new FileResource(file));
 			imageStrip.addImage(new FileResource(file));
 		}
 		
@@ -424,33 +396,6 @@ public class SingleParkingView extends BaseParkingView{
 			e.printStackTrace();
 		}
 	}
-	
-	/*
-	private void uploadOtherUserChanges(){
-		if(((MyVaadinUI)UI.getCurrent()).getLoginedUserName() == null)
-		{
-			ParkingNotification.show("You should be logged in to do that!");
-			return;
-		}
-		
-		
-		ParkingPlace ppRating = new ParkingPlace(((MyVaadinUI)UI.getCurrent()).getLoginedUserName());
-	
-		//TODO: Ennek kellene így menni nem? 
-		ppRating.addImgRatingComment(newUploadBox.getUploadedImagePath(), newRating.getValue().intValue(), newCommentArea.getValue(), ppRating.getUser()); 
-		try {
-			ppRating.setId(currentParkingPlace.getId());
-			BusinessLogic.addParkRating(ppRating);
-		} catch (Exception e) {
-			try{
-			BusinessLogic.modifyImgRatingCommentOfParkingPlace(ppRating.getId(), ppRating.getUser(),
-																		newUploadBox.getUploadedImagePath(), newRating.getValue().intValue(), newCommentArea.getValue());
-			}catch(Exception ex){
-				//TODO majd kiszedni
-				ex.printStackTrace();
-			}
-		}
-	}*/
 	
 	
 	private void enableModifying(){

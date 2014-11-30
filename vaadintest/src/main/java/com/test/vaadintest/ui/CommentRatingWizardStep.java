@@ -3,12 +3,9 @@ package com.test.vaadintest.ui;
 import org.vaadin.teemu.ratingstars.RatingStars;
 import org.vaadin.teemu.wizards.WizardStep;
 
-import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 
 public class CommentRatingWizardStep implements WizardStep{
 

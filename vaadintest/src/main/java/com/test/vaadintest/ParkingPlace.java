@@ -1,6 +1,5 @@
 package com.test.vaadintest;
 
-import java.awt.image.*;
 import java.util.ArrayList;
 
 public class ParkingPlace {
@@ -58,7 +57,6 @@ public class ParkingPlace {
 	ArrayList<String> ratingusers = new ArrayList<String>();
 	private int id;
 	
-	//a tagváltozók elérhetők, a létrehozás után be lehet állítani (http://en.wikipedia.org/wiki/Builder_pattern, csak nincs külön builder :D)
 	// használható, mert a username-en kívül a többi menző lehet null.
 	public ParkingPlace(String user){
 		this.user = user;
