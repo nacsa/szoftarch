@@ -167,8 +167,8 @@ public class SingleParkingView extends BaseParkingView{
 		topLayout.setSizeFull();
 		
 		VerticalLayout leftLayout = new VerticalLayout();
-		topLayout.setSpacing(true);
-		topLayout.setSizeFull();
+		leftLayout.setSpacing(true);
+		leftLayout.setSizeFull();
 		
 		
 		
@@ -218,7 +218,6 @@ public class SingleParkingView extends BaseParkingView{
 		
 		topLayout.addComponent(leftLayout);
 
-		topLayout.addComponent(getParkingImageStrip());
 		
 		VerticalLayout buttonLayout = new VerticalLayout();
 		buttonLayout.setSpacing(true);
@@ -231,8 +230,6 @@ public class SingleParkingView extends BaseParkingView{
 		VerticalLayout bottomLayout = new VerticalLayout();
 		bottomLayout.setSpacing(true);
 		bottomLayout.setSizeFull();
-		
-		//bottomLayout.addComponent(getParkingImageStrip());
 		bottomLayout.addComponent(getCommentLayout());
 		
 		
@@ -305,16 +302,17 @@ public class SingleParkingView extends BaseParkingView{
 	}
 	
 	private ImageStrip getParkingImageStrip(){
-		ImageStrip imageStrip = new ImageStrip(org.vaadin.peter.imagestrip.ImageStrip.Alignment.VERTICAL);
+		ImageStrip imageStrip = new ImageStrip(org.vaadin.peter.imagestrip.ImageStrip.Alignment.HORIZONTAL);
 		imageStrip.setAnimated(true);
 		
-		 imageStrip.setImageBoxWidth(200);
-	        imageStrip.setImageBoxHeight(200);
+		imageStrip.setImageBoxWidth(200);
+        imageStrip.setImageBoxHeight(200);
 
 	        // Set maximum size of the images
-	        imageStrip.setImageMaxWidth(200);
-	        imageStrip.setImageMaxHeight(200);
-		imageStrip.setWidth("220px");
+        imageStrip.setImageMaxWidth(200);
+        imageStrip.setImageMaxHeight(200);
+		imageStrip.setWidth("400px");
+		imageStrip.setHeight("220px");
 		List<String> validPaths= new ArrayList<String>();
 		for(String imagePath : currentParkingPlace.getImgs()){
 			if(imagePath!=null && !"".equals(imagePath))
