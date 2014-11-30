@@ -105,7 +105,7 @@ public class SingleParkingView extends BaseParkingView{
 		map = new GoogleMap(null,null,null);
 	}
 	
-	
+	// Belépés, a paraméter minden azonosítja az egyedi parkolóhelyeket
 	@Override
 	public void enter(ViewChangeEvent event) {
 		super.enter(event);	
@@ -124,8 +124,6 @@ public class SingleParkingView extends BaseParkingView{
 		}
 		
 		
-		
-		
 		tmpLabel.setValue("ID should be: " + event.getParameters());
 		
 		currentParkingPlace = BusinessLogic.queryAllDataOfOneParkingPlace(parkingPlaceId, true);
@@ -136,6 +134,7 @@ public class SingleParkingView extends BaseParkingView{
 	}
 	
 	
+	// Ha nem található a keresett parkolóhely jelezni azt
 	private void setupInvalidIdView(String parameter){
 		midPanel.setSizeFull();
 		VerticalLayout layout = new VerticalLayout();
@@ -147,13 +146,10 @@ public class SingleParkingView extends BaseParkingView{
 		
 		label.setContentMode(ContentMode.HTML);
 		layout.addComponent(label);
-		midPanel.setContent(layout);
-		System.out.println(UI.getCurrent().getPage().getLocation().getHost());
-		System.out.println(UI.getCurrent().getPage().getLocation().getPath());
-		System.out.println(UI.getCurrent().getPage().getLocation().getPort());
-		
+		midPanel.setContent(layout);		
 	}
 	
+	// Helyes viselkedés implementálása
 	private void setupValidIdView(){
 		TabSheet tabSheet = new TabSheet();
 		tabSheet.addTab(getTab1(), "Parking place information");
@@ -171,6 +167,12 @@ public class SingleParkingView extends BaseParkingView{
 		HorizontalLayout topLayout = new HorizontalLayout();
 		topLayout.setSpacing(true);
 		topLayout.setSizeFull();
+		
+		VerticalLayout leftLayout = new VerticalLayout();
+		topLayout.setSpacing(true);
+		topLayout.setSizeFull();
+		
+		
 		
 		GridLayout filterFieldLayout = new GridLayout(2,2);
 		filterFieldLayout.setSpacing(true);
@@ -204,8 +206,8 @@ public class SingleParkingView extends BaseParkingView{
 		filterFieldLayout.addComponent(priceField, 1, 0);
 		filterFieldLayout.addComponent(availFromField, 0, 1);
 		filterFieldLayout.addComponent(availUntilField, 1, 1);
-		topLayout.addComponent(filterFieldLayout);
-		topLayout.addComponent(map);
+		leftLayout.addComponent(filterFieldLayout);
+		leftLayout.addComponent(map);
 		map.setHeight("300px");
 		map.setWidth("300px");
 		
@@ -214,7 +216,11 @@ public class SingleParkingView extends BaseParkingView{
 		map.addMarker("", parkingLatLon, false, null);
 		map.setCenter(parkingLatLon);
 		map.setZoom(15);
-		topLayout.setComponentAlignment(map, Alignment.BOTTOM_CENTER);
+		leftLayout.setComponentAlignment(map, Alignment.BOTTOM_CENTER);
+		
+		topLayout.addComponent(leftLayout);
+
+		topLayout.addComponent(getParkingImageStrip());
 		
 		VerticalLayout buttonLayout = new VerticalLayout();
 		buttonLayout.setSpacing(true);
@@ -224,7 +230,6 @@ public class SingleParkingView extends BaseParkingView{
 		
 		
 		topLayout.addComponent(buttonLayout);
-		topLayout.addComponent(getParkingImageStrip());
 		VerticalLayout bottomLayout = new VerticalLayout();
 		bottomLayout.setSpacing(true);
 		bottomLayout.setSizeFull();
