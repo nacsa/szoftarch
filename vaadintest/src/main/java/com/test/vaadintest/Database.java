@@ -329,9 +329,9 @@ public class Database {
 			int stmtParamCount = 1;
 			if (around != null){
 				stmt.setFloat(1, (float) (around.getLat()));
-				stmt.setFloat(2, (float) 90);
+				stmt.setFloat(2, (float) (distanceInGeoSecs / 3600.0));
 				stmt.setFloat(3, (float) (around.getLon()));
-				stmt.setFloat(4, (float) 180);
+				stmt.setFloat(4, (float) (distanceInGeoSecs / 3600.0));
 				stmtParamCount += 4;
 			}
 			if (maxprice > 0) {
@@ -396,9 +396,7 @@ public class Database {
 			return pp;
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}/* catch (IOException e) {
-			e.printStackTrace();
-		}*/
+		}
 		return null;
 	}
 	

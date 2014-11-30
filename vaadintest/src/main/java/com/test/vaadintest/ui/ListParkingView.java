@@ -124,33 +124,13 @@ public class ListParkingView extends BaseParkingView{
 				ParkingNotification.show("Time format should be a HH:MM.");
 				return;
 			}
-		LatLon addresLatlon = null;
-		float distanceInGeoSecs = 0;
-		if (FieldUtil.isFieldFilled(addressField)){
-			addresLatlon = LocationUtil.getLatlonFromAddress(address);
-		}
-		else{
-			addresLatlon = null;
-			distanceField.setValue(""); //ilyenkor a distance-ot nem használjuk és ezt jelezzük a usernek is
-		}
-		
-		//TODO: 
 		
 		ArrayList<ParkingPlace> filteredParkings = 
-				BusinessLogic.queryParkingPlace(addresLatlon, distanceInGeoSecs, maxprice, availfrom, availuntil);
+				BusinessLogic.queryParkingPlace(address, distance, maxprice, availfrom, availuntil);
 		
-		//TODO: A TÁVOLSÁG ALAPJÁN SZŰRÉST MÁR KITALÁLTAM, DE MÉG NINCS BENN, msot az összeset visszaadja a DB-ből.
-		
-		// ez már éles innentől
+		// tegyük ki az összeset a térképre!
 		for(ParkingPlace place : filteredParkings){
-			if(FieldUtil.isFieldFilled(addressField)){//ha filterelni kell address szerint
-				
-				if(distance > LocationUtil.getLatLonDistance(new LatLon(place.getLat(), place.getLon()), addresLatlon)){
-					addParkingMarkerToMap(place);
-				}
-			}else{
-				addParkingMarkerToMap(place);
-			}
+			addParkingMarkerToMap(place);
 		}
 	}
 	
