@@ -9,6 +9,7 @@ import com.test.vaadintest.businesslogic.BusinessLogic;
 import com.test.vaadintest.businesslogic.FieldUtil;
 import com.test.vaadintest.businesslogic.LocationUtil;
 import com.vaadin.navigator.Navigator;
+import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.tapio.googlemaps.GoogleMap;
 import com.vaadin.tapio.googlemaps.client.LatLon;
 import com.vaadin.tapio.googlemaps.client.events.MarkerClickListener;
@@ -33,6 +34,7 @@ public class ListParkingView extends BaseParkingView{
 	TextField priceField;
 	TimeSelecter availFromField;
 	TimeSelecter availUntilField;
+	Panel filterPanel;
 	
 	GoogleMap map;
 	
@@ -41,7 +43,6 @@ public class ListParkingView extends BaseParkingView{
 	public ListParkingView(Navigator navigator) {
 		super(navigator);
 		name = "listparking";
-		VerticalLayout mainLayout = new VerticalLayout();
 		HorizontalLayout filterLayout = new HorizontalLayout();
 		GridLayout filterFieldLayout = new GridLayout(2,3);
 		filterFieldLayout.setSpacing(true);
@@ -74,8 +75,22 @@ public class ListParkingView extends BaseParkingView{
 		map = new GoogleMap(null,null,null);
 		map.setSizeFull();
 		map.setHeight("500px");
-		Panel filterPanel = new Panel();
+		filterPanel = new Panel();
 		filterPanel.setContent(filterLayout);
+		
+	
+		
+	}
+	
+	@Override
+	public void enter(ViewChangeEvent event) {
+		super.enter(event);
+
+		VerticalLayout mainLayout = new VerticalLayout();
+		
+		map = new GoogleMap(null,null,null);
+		map.setSizeFull();
+		map.setHeight("500px");
 		
 		mainLayout.addComponent(filterPanel);
 		mainLayout.addComponent(map);
@@ -83,7 +98,6 @@ public class ListParkingView extends BaseParkingView{
 		mainLayout.setSpacing(true);
 		
 		midPanel.setContent(mainLayout);
-		
 	}
 	
 	private void filterParkings(){
