@@ -26,7 +26,6 @@ public class MyVaadinUI extends UI
     protected static final String MAINVIEW = "main";
 
     private String hostUrl;
-	private Database db;
 	private String loginedUserName;
 	
 
@@ -64,14 +63,7 @@ public class MyVaadinUI extends UI
         
         layout.setMargin(true);
         setContent(layout);
-
-        db = new Database();
-           
         
-    }
-    
-    public Database getDB(){
-    	return db;
     }
     
     public String getHostUrl(){

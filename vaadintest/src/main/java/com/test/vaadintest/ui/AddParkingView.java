@@ -54,7 +54,7 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 		optionGroup.select(optionAddress);
 	
 		addressField = new TextField("Address");
-		priceField = new TextField("Price");
+		priceField = new TextField("Price (HUF/h)");
 		availFromField = new TimeSelecter("Available from");
 		availUntilField = new TimeSelecter("Available until");
 		commentArea = new TextArea("Comment");
