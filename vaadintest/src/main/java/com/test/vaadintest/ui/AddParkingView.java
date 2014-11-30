@@ -10,8 +10,9 @@ import org.vaadin.teemu.wizards.event.WizardStepActivationEvent;
 import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 
 import com.test.vaadintest.MyVaadinUI;
-import com.test.vaadintest.ParkingNotification;
 import com.test.vaadintest.ParkingPlace;
+import com.test.vaadintest.businesslogic.BusinessLogic;
+import com.test.vaadintest.businesslogic.FieldUtil;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -41,7 +42,6 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 	
 	private static String optionAddress = "Use Address";
 	private static String optionMap = "Use Map";
-	private static String optionLocation = "Use Location";
 	
 	public AddParkingView(Navigator navigator) {
 		super(navigator);
@@ -51,7 +51,6 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 		optionGroup = new OptionGroup();
 		optionGroup.addItem(optionAddress);
 		optionGroup.addItem(optionMap);
-		optionGroup.addItem(optionLocation);
 		optionGroup.select(optionAddress);
 	
 		addressField = new TextField("Address");
@@ -108,7 +107,9 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 		float lat = (float)parkingLatLon.getLat();
 		float lon = (float)parkingLatLon.getLon();
 		String address = addressField.getValue();
-		float price = Float.parseFloat(priceField.getValue());
+		float price; 
+		if (!FieldUtil.isFieldFilled(priceField)) price = 0;
+		else price = Float.parseFloat(priceField.getValue());
 		String availfrom = availFromField.getValue();
 		String availuntil = availUntilField.getValue();
 		
@@ -118,7 +119,7 @@ public class AddParkingView extends BaseParkingView implements WizardProgressLis
 		
 		ParkingPlace pp = new ParkingPlace(user, lat, lon, address, price, availfrom, availuntil);
 		pp.addImgRatingComment(imagepath, rating, comment, user);
-		((MyVaadinUI)UI.getCurrent()).getDB().addParkingPlace(pp);
+		BusinessLogic.addParkingPlace(pp);
 		
 		
 		endWizard("Parking place added! Have a nice day!");

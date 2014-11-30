@@ -1,4 +1,4 @@
-package com.test.vaadintest;
+package com.test.vaadintest.businesslogic;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -88,5 +88,7 @@ public class LocationUtil {
 		
 		return (float) (EARTH_RADIUS * c);
 	}
+	
+	
 	
 }

@@ -7,11 +7,11 @@ import java.util.List;
 import org.vaadin.peter.imagestrip.ImageStrip;
 import org.vaadin.teemu.ratingstars.RatingStars;
 
-import com.test.vaadintest.FieldUtil;
-import com.test.vaadintest.LocationUtil;
 import com.test.vaadintest.MyVaadinUI;
-import com.test.vaadintest.ParkingNotification;
 import com.test.vaadintest.ParkingPlace;
+import com.test.vaadintest.businesslogic.BusinessLogic;
+import com.test.vaadintest.businesslogic.FieldUtil;
+import com.test.vaadintest.businesslogic.LocationUtil;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.FileResource;
@@ -118,7 +118,7 @@ public class SingleParkingView extends BaseParkingView{
 		}
 		
 		// Ha nem létezik a parkolóhely
-		if(!((MyVaadinUI)UI.getCurrent()).getDB().doParkingPLaceExist(parkingPlaceId)){
+		if(!BusinessLogic.doParkingPLaceExist(parkingPlaceId)){
 			setupInvalidIdView(event.getParameters());
 			return;
 		}
@@ -128,7 +128,7 @@ public class SingleParkingView extends BaseParkingView{
 		
 		tmpLabel.setValue("ID should be: " + event.getParameters());
 		
-		currentParkingPlace = ((MyVaadinUI)UI.getCurrent()).getDB().queryAllDataOfOneParkingPlace(parkingPlaceId, true);
+		currentParkingPlace = BusinessLogic.queryAllDataOfOneParkingPlace(parkingPlaceId, true);
 		if(currentParkingPlace == null)
 			System.out.println("No parking place returned!");
 		setupValidIdView();		
@@ -252,12 +252,36 @@ public class SingleParkingView extends BaseParkingView{
 		newCommentArea = new TextArea("Comment");
 		newCommentArea.setWidth("100%");
 		newRating = new RatingStars();
-		//a captionöket lehet el kéne rejteni, de máshogy nem tom hogyan lehet kiszedni őket.
 		newRating.setCaption("Rating");
 		newUploadBox = new UploadBox();
 		newUploadBox.setCaption("Picture");
 		
 		Button uploadButton = new Button("Send");
+
+		String curruser = ((MyVaadinUI)UI.getCurrent()).getLoginedUserName();
+		if( curruser != null) 
+		{
+			try {
+				int currPPid = currentParkingPlace.getId();
+				ArrayList<Object> ratingOfCurrUser = BusinessLogic.hasUserRatedThis(currPPid, curruser);
+				//ha a fgv null-t ad vissza, akkor az aktuális user még nem adott hozzá ratinget, és most szeretne. 
+				if ( ratingOfCurrUser != null) {
+					//Ha az aktuális user az általa már megadott rating/comment/pic-et akarja módosítani, akkor jelezzük ki neki, hogy miket adott meg!
+					if (ratingOfCurrUser.get(0) != null) newUploadBox.setPicture((String) ratingOfCurrUser.get(0)); //ekkor van feltöltött képe. ezt megjelenítsük?
+					if (ratingOfCurrUser.get(1) != null){
+						Integer oldrating = (Integer) ratingOfCurrUser.get(1);
+						newRating.setValue(oldrating.doubleValue());
+					}
+					if (ratingOfCurrUser.get(2) != null){
+						String oldcomment = (String) ratingOfCurrUser.get(2);
+						newCommentArea.setValue(oldcomment);
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
 		uploadButton.addClickListener(new ClickListener() {
 			
 			@Override
@@ -368,7 +392,35 @@ public class SingleParkingView extends BaseParkingView{
 		return outerLayout;
 	}
 	
+	private void uploadOtherUserChanges(){
+		String curruser = ((MyVaadinUI)UI.getCurrent()).getLoginedUserName();
+		if( curruser == null)
+		{
+			ParkingNotification.show("You should be logged in to do that!");
+			return;
+		}
+		
+		try {
+			int currPPid = currentParkingPlace.getId(); 
+			ParkingPlace ppRating = new ParkingPlace(curruser);
+			ppRating.setId(currPPid);
+			ArrayList<Object> ratingOfCurrUser = BusinessLogic.hasUserRatedThis(currPPid, curruser);
+			if (ratingOfCurrUser == null){
+				//új rating hozzáadása
+				ppRating.addImgRatingComment(newUploadBox.getUploadedImagePath(), newRating.getValue().intValue(), newCommentArea.getValue(), curruser);
+				BusinessLogic.addParkRating(ppRating);
+			}
+			else{
+				//az aktuális user a sajtá kommentjét módosítja
+				BusinessLogic.modifyImgRatingCommentOfParkingPlace(currPPid, curruser, 
+						newUploadBox.getUploadedImagePath(), newRating.getValue().intValue(), newCommentArea.getValue());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
+	/*
 	private void uploadOtherUserChanges(){
 		if(((MyVaadinUI)UI.getCurrent()).getLoginedUserName() == null)
 		{
@@ -383,20 +435,19 @@ public class SingleParkingView extends BaseParkingView{
 		ppRating.addImgRatingComment(newUploadBox.getUploadedImagePath(), newRating.getValue().intValue(), newCommentArea.getValue(), ppRating.getUser()); 
 		try {
 			ppRating.setId(currentParkingPlace.getId());
-			((MyVaadinUI)UI.getCurrent()).getDB().addParkRating(ppRating);
+			BusinessLogic.addParkRating(ppRating);
 		} catch (Exception e) {
 			try{
-			((MyVaadinUI)UI.getCurrent()).getDB().modifyImgRatingCommentOfParkingPlace(ppRating.getId(), ppRating.getUser(),
+			BusinessLogic.modifyImgRatingCommentOfParkingPlace(ppRating.getId(), ppRating.getUser(),
 																		newUploadBox.getUploadedImagePath(), newRating.getValue().intValue(), newCommentArea.getValue());
 			}catch(Exception ex){
 				//TODO majd kiszedni
 				ex.printStackTrace();
 			}
 		}
-	}
+	}*/
 	
 	
-	//TODO: nem nem azt majd másik tabon 
 	private void enableModifying(){
 		addressField.setReadOnly(false);
 		priceField.setReadOnly(false);
@@ -416,7 +467,6 @@ public class SingleParkingView extends BaseParkingView{
 	
 	private void saveFieldValues(){
 
-		//TODO FIELD VALIDATION!
 		String newaddress = null;
 		float newlat = 0;
 		float newlon = 0;
@@ -426,16 +476,40 @@ public class SingleParkingView extends BaseParkingView{
 			newlat = (float) newlatlon.getLat();
 			newlon = (float) newlatlon.getLon();
 		}
-		ParkingPlace modified = new ParkingPlace(currentParkingPlace.getUser(), newlat, newlon, newaddress, 
-				Float.parseFloat(priceField.getValue()), availFromField.getValue(), availUntilField.getValue());
-		try {
-			modified.setId(currentParkingPlace.getId());
-		} catch (Exception e) {
-			e.printStackTrace();
+		
+		boolean allow = true;
+		
+		if(FieldUtil.isFieldFilled(priceField)){
+			if(!FieldUtil.isPositiveValid(priceField.getValue())){
+				allow = false;
+				ParkingNotification.show("Price field should be positive number");
+			}
 		}
-		//TODO: saját képét módosítja: DB.modifiyImageRatingCommentOfParkingPlace(id, user, imgPath, rating, comment);
-		((MyVaadinUI) UI.getCurrent()).getDB().modifyDataOfParkingPlace(modified);
-		setunmodified();
+
+		if(FieldUtil.isFieldFilled(availFromField)){
+			if ( ! FieldUtil.validateTimeFormat(availFromField.getValue())){
+				allow = false;
+				ParkingNotification.show("Time format should be HH:MM.");
+			}
+		}
+		if(FieldUtil.isFieldFilled(availUntilField)){
+			if ( ! FieldUtil.validateTimeFormat(availUntilField.getValue())){
+				allow = false;
+				ParkingNotification.show("Time format should be HH:MM.");
+			}
+		}
+		
+		if(allow){
+			ParkingPlace modified = new ParkingPlace(currentParkingPlace.getUser(), newlat, newlon, newaddress, 
+					Float.parseFloat(priceField.getValue()), availFromField.getValue(), availUntilField.getValue());
+			try {
+				modified.setId(currentParkingPlace.getId());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			BusinessLogic.modifyDataOfParkingPlace(modified);
+			setunmodified();
+		}
 	}
 	
 	private void cancelFieldValues(){

@@ -2,9 +2,8 @@ package com.test.vaadintest.ui;
 
 import org.w3c.dom.UserDataHandler;
 
-import com.test.vaadintest.LoginUtil;
 import com.test.vaadintest.MyVaadinUI;
-import com.test.vaadintest.ParkingNotification;
+import com.test.vaadintest.businesslogic.LoginUtil;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;

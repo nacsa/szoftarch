@@ -3,11 +3,11 @@ package com.test.vaadintest.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.test.vaadintest.FieldUtil;
-import com.test.vaadintest.LocationUtil;
 import com.test.vaadintest.MyVaadinUI;
-import com.test.vaadintest.ParkingNotification;
 import com.test.vaadintest.ParkingPlace;
+import com.test.vaadintest.businesslogic.BusinessLogic;
+import com.test.vaadintest.businesslogic.FieldUtil;
+import com.test.vaadintest.businesslogic.LocationUtil;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.tapio.googlemaps.GoogleMap;
 import com.vaadin.tapio.googlemaps.client.LatLon;
@@ -95,22 +95,35 @@ public class ListParkingView extends BaseParkingView{
 		if(FieldUtil.isFieldFilled(distanceField))
 			if (FieldUtil.isPositiveValid(distanceField.getValue()))
 				distance = Float.parseFloat(distanceStr);
+			else {
+				ParkingNotification.show("Distance should be a positive number.");
+				return;
+			}
 		float maxprice = 0;
 		if (FieldUtil.isFieldFilled(priceField))
 			if (FieldUtil.isPositiveValid(priceField.getValue()))
 				maxprice = Float.parseFloat(priceField.getValue());
-			else 
-				ParkingNotification.show("Price format is not valid.");
-		else
-			maxprice = 0;
+			else{
+				ParkingNotification.show("Price should be a positive number.");
+				return;
+			}
+		
 		String availfrom = null;
 		if (FieldUtil.isFieldFilled(availFromField))
 			if(FieldUtil.validateTimeFormat(availFromField.getValue()))
 				availfrom = availFromField.getValue();
+			else{
+				ParkingNotification.show("Time format should be a HH:MM.");
+				return;
+			}
 		String availuntil = null;
 		if (FieldUtil.isFieldFilled(availUntilField))
 			if(FieldUtil.validateTimeFormat(availFromField.getValue()))
-				availuntil = availUntilField.getValue();		
+				availuntil = availUntilField.getValue();	
+			else{
+				ParkingNotification.show("Time format should be a HH:MM.");
+				return;
+			}
 		LatLon addresLatlon = null;
 		float distanceInGeoSecs = 0;
 		if (FieldUtil.isFieldFilled(addressField)){
@@ -121,8 +134,10 @@ public class ListParkingView extends BaseParkingView{
 			distanceField.setValue(""); //ilyenkor a distance-ot nem használjuk és ezt jelezzük a usernek is
 		}
 		
+		//TODO: 
+		
 		ArrayList<ParkingPlace> filteredParkings = 
-				((MyVaadinUI)UI.getCurrent()).getDB().queryParkingPlace(addresLatlon, distanceInGeoSecs, maxprice, availfrom, availuntil);
+				BusinessLogic.queryParkingPlace(addresLatlon, distanceInGeoSecs, maxprice, availfrom, availuntil);
 		
 		//TODO: A TÁVOLSÁG ALAPJÁN SZŰRÉST MÁR KITALÁLTAM, DE MÉG NINCS BENN, msot az összeset visszaadja a DB-ből.
 		
@@ -180,7 +195,7 @@ public class ListParkingView extends BaseParkingView{
 			if(clickedMarker.equals(marker)){
 				map.openInfoWindow(infoWindow);
 				try {
-					ParkingPlace thispp = ((MyVaadinUI)UI.getCurrent()).getDB().
+					ParkingPlace thispp = BusinessLogic.
 							queryAllDataOfOneParkingPlace(idOfParkingPlace, true);
 					
 					String infoWindowContent;

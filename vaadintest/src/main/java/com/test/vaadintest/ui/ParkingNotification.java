@@ -1,4 +1,4 @@
-package com.test.vaadintest;
+package com.test.vaadintest.ui;
 
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;

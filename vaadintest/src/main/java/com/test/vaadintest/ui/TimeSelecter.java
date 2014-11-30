@@ -1,6 +1,6 @@
 package com.test.vaadintest.ui;
 
-import com.test.vaadintest.FieldUtil;
+import com.test.vaadintest.businesslogic.FieldUtil;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
@@ -70,13 +70,18 @@ public class TimeSelecter extends CustomComponent {
 	}
 	
 	public void  setValue(String value){
-		if(FieldUtil.validateTimeFormat(value)){
-			String[] values = value.split(":");
-			hourSelect.setValue(values[0]);
-			minSelect.setValue(values[1]);
-		}else{
+		if(value == null){
 			hourSelect.setValue(null);
 			minSelect.setValue(null);
+		}else{
+			if(FieldUtil.validateTimeFormat(value)){
+				String[] values = value.split(":");
+				hourSelect.setValue(values[0]);
+				minSelect.setValue(values[1]);
+			}else{
+				hourSelect.setValue(null);
+				minSelect.setValue(null);
+			}
 		}
 	}
 }

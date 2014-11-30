@@ -43,7 +43,7 @@ public class Database {
           		+ "id INTEGER NOT NULL,"
           		+ "username CHAR(20) NOT NULL,"
           		+ "picture TEXT,"
-          		+ "rating INT CHECK( rating >=1 AND rating <= 5 ),"
+          		+ "rating INT CHECK( rating >=0 AND rating <= 5 ),"
           		+ "comment TEXT,"
           		+ "PRIMARY KEY (id, username),"
           		+ "FOREIGN KEY(id) REFERENCES parking(id),"
@@ -197,7 +197,7 @@ public class Database {
 	 * @return
 	 */
 	public ArrayList<Object> hasUserRatedThis(int id, String user){
-		String checkis = "SELECT * FROM parkingrating"
+		String checkis = "SELECT * FROM parkrating"
 				+ " WHERE id = ? AND username = ? ";
 		if (id == 0 || user == null) return null;
 		try {

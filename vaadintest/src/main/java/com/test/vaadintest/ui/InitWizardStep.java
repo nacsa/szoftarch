@@ -2,8 +2,7 @@ package com.test.vaadintest.ui;
 
 import org.vaadin.teemu.wizards.WizardStep;
 
-import com.test.vaadintest.FieldUtil;
-import com.test.vaadintest.ParkingNotification;
+import com.test.vaadintest.businesslogic.FieldUtil;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
@@ -48,34 +47,26 @@ public class InitWizardStep implements WizardStep{
 	@Override
 	public boolean onAdvance() {
 		boolean allow = true;
-		if(priceField.getValue() == null || priceField.getValue().equals("")){
-			ParkingNotification.show("The price is not set!");
-			allow = false;
+		if(FieldUtil.isFieldFilled(priceField)){
+			if(!FieldUtil.isPositiveValid(priceField.getValue())){
+				allow = false;
+				ParkingNotification.show("Price field should be positive number");
+			}
 		}
 
 		//nem feltétlenül muszáj ezeket kitölteni, a db jól kezeli
-		if(availFromField.getValue() == null || availFromField.getValue().equals("")){
-			allow = false;
-			ParkingNotification.show("Time interval is not set!");
-		}
-		else {
-			if ( ! FieldUtil.validateTimeFormat(availFromField.getValue())){ 
-				ParkingNotification.show("Time format should be HH:MM.");
+		if(FieldUtil.isFieldFilled(availFromField)){
+			if ( ! FieldUtil.validateTimeFormat(availFromField.getValue())){
 				allow = false;
+				ParkingNotification.show("Time format should be HH:MM.");
 			}
 		}
-		
-		if(availUntilField.getValue() == null || availUntilField.getValue().equals("")){
-			allow = false;
-			ParkingNotification.show("Time interval is not set!");
-		}
-		else {
-			if ( ! FieldUtil.validateTimeFormat(availUntilField.getValue())){ 
-				ParkingNotification.show("Time format should be HH:MM.");
+		if(FieldUtil.isFieldFilled(availUntilField)){
+			if ( ! FieldUtil.validateTimeFormat(availUntilField.getValue())){
 				allow = false;
+				ParkingNotification.show("Time format should be HH:MM.");
 			}
 		}
-		
 		return allow;
 	}
 

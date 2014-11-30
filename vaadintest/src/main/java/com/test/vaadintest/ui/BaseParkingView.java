@@ -1,7 +1,6 @@
 package com.test.vaadintest.ui;
 
 import com.test.vaadintest.MyVaadinUI;
-import com.test.vaadintest.ParkingNotification;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;

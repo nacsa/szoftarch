@@ -6911,15 +6911,3 @@ body .mytheme.v-app .v-app-loading {
 	spacing: 5px;
 	margin: 20px;
 }
-
-.mytheme .v-strip {
-	width: 100%;
-}
-
-.mytheme .v-strip div {
-	width: 100%;
-}
-
-.mytheme .v-strip .div {
-	width: 100%;
-}

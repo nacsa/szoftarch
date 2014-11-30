@@ -2,8 +2,8 @@ package com.test.vaadintest.ui;
 
 import org.vaadin.teemu.wizards.WizardStep;
 
-import com.test.vaadintest.LocationUtil;
-import com.test.vaadintest.ParkingNotification;
+import com.test.vaadintest.businesslogic.FieldUtil;
+import com.test.vaadintest.businesslogic.LocationUtil;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.Sizeable.Unit;
@@ -127,7 +127,7 @@ public class LocationWizardStep implements WizardStep{
 			
 			topMap.setVisible(false);
 			
-		}else if (optionMap.equals(value)){
+		}else {
 			addressField.setVisible(false);
 			
 			topMap.setVisible(true);
@@ -135,11 +135,6 @@ public class LocationWizardStep implements WizardStep{
 			topMap.setCenter(bpCenter);
 			topMap.setZoom(bpZoom);
 			
-		}else{ //optionLocation.equals(value)
-			addressField.setVisible(false);
-			
-			topMap.setVisible(false);
-
 		}
 		setLocCalled = false;
 		
@@ -152,12 +147,16 @@ public class LocationWizardStep implements WizardStep{
 		bottomMap.clearMarkers();
 		
 		if(optionAddress.equals(value)){
+			
+			if(!FieldUtil.isFieldFilled(addressField)){
+				ParkingNotification.show("Please give an address!");
+				return;
+			}
+			
 			tmpLatLon = LocationUtil.getLatlonFromAddress(addressField.getValue());
-		}else if (optionMap.equals(value)){
+		}else {
 			tmpLatLon = mapLatLon;
 			
-		}else{ //optionLocation.equals(value)
-			tmpLatLon = LocationUtil.getLatlonFromLocation();
 		}
 		
 		outLatLon.setLat(tmpLatLon.getLat());

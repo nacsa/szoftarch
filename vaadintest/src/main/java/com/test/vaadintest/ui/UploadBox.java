@@ -8,7 +8,6 @@ import java.nio.file.FileSystem;
 
 import javax.activation.MimeType;
 
-import com.test.vaadintest.ParkingNotification;
 import com.vaadin.server.FileResource;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Image;
@@ -95,7 +94,7 @@ class UploadBox extends CustomComponent
     }
 
     public void uploadSucceeded(SucceededEvent event) {
-
+    	
         image.setSource(new FileResource(file));
     	
     	image.setVisible(true);
@@ -105,6 +104,17 @@ class UploadBox extends CustomComponent
         validUpload = true;
     }
 
+    public void setPicture(String path){
+    	file = new File(path);
+    	
+    	image.setSource(new FileResource(file));
+    	
+    	image.setVisible(true);
+    	image.addStyleName("v-uploadbox-image");
+
+        image.markAsDirty();
+    }
+    
     @Override
     public void uploadFailed(FailedEvent event) {
     	if(!("image/jpeg".equals(event.getMIMEType()) 
@@ -123,6 +133,8 @@ class UploadBox extends CustomComponent
     }
     
     public String getUploadedImagePath() {
+    	if(uploadedFileName == null)
+    		return null;
     	return UPLOADED_DIR_NAME + uploadedFileName;
     }
 }

@@ -1,4 +1,4 @@
-package com.test.vaadintest;
+package com.test.vaadintest.businesslogic;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

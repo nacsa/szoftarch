@@ -1,8 +1,8 @@
 package com.test.vaadintest.ui;
 
-import com.test.vaadintest.LoginUtil;
 import com.test.vaadintest.MyVaadinUI;
-import com.test.vaadintest.ParkingNotification;
+import com.test.vaadintest.businesslogic.BusinessLogic;
+import com.test.vaadintest.businesslogic.LoginUtil;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -93,7 +93,7 @@ public class RegistrationView extends VerticalLayout implements View{
 			return;
 		}
 		
-		if (((MyVaadinUI)UI.getCurrent()).getDB().addUser(name, password))
+		if (BusinessLogic.addUser(name, password))
 			{
 				ParkingNotification.show("Successfull registration!");
 				//login after registration
