@@ -46,7 +46,7 @@ public class ListParkingView extends BaseParkingView{
 		
 		addressField = new TextField("Address");
 		distanceField = new TextField("Max distance (m)");
-		priceField = new TextField("Max price");
+		priceField = new TextField("Max price (HUF/h)");
 		availFromField = new TimeSelecter("Available from (HH:MM)");
 		availUntilField = new TimeSelecter("Available until (HH:MM)");
 		
